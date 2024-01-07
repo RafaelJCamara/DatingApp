@@ -1,1 +1,7 @@
 <h1>Dating app</h1>
+
+<ul>
+  <li *ngFor="let user of users">
+    {{ user.id }} - {{ user.userName }}
+  </li>
+</ul>
