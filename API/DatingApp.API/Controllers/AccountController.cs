@@ -1,14 +1,11 @@
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Unicode;
 using DatingApp.API.Data;
 using DatingApp.API.DTOs;
 using DatingApp.API.Entities;
 using DatingApp.API.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Common;
 
 namespace DatingApp.API.Controllers;
 
