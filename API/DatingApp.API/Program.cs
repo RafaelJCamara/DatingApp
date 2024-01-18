@@ -1,5 +1,8 @@
+using DatingApp.API.Data;
+using DatingApp.API.Data.Seed;
 using DatingApp.API.Extensions;
 using DatingApp.API.Middleware;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,5 +36,21 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+using var scope = app.Services.CreateScope();
+
+var services = scope.ServiceProvider;
+
+try
+{
+    var dbContext = services.GetRequiredService<DataContext>();
+    await dbContext.Database.MigrateAsync();
+    await Seed.SeedUsers(dbContext);
+}
+catch (Exception ex)
+{
+    var logger = services.GetService<ILogger<Program>>();
+    logger.LogError(ex, "An error occured during the database migration.");
+}
 
 app.Run();
