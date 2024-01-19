@@ -1,3 +1,6 @@
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using DatingApp.API.DTOs;
 using DatingApp.API.Entities;
 using DatingApp.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +11,12 @@ public class UserRepository : IUserRepository
 {
     
     private readonly DataContext _context;
+    private readonly IMapper _mapper;
 
-    public UserRepository(DataContext context)
+    public UserRepository(DataContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
     
     public async Task<AppUser> GetUserByIdAsync(int id)
@@ -22,12 +27,13 @@ public class UserRepository : IUserRepository
     public async Task<AppUser> GetUserByUsernameAsync(string username)
     {
         return await _context.Users
+            .Include(x => x.Photos)
             .SingleOrDefaultAsync(x => x.UserName == username);
     }
 
     public async Task<IEnumerable<AppUser>> GetUsersAsync()
     {
-        return await _context.Users.ToListAsync();
+        return await _context.Users.Include(x => x.Photos).ToListAsync();
     }
 
     public void Update(AppUser user)
@@ -39,5 +45,19 @@ public class UserRepository : IUserRepository
     {
         return await _context.SaveChangesAsync() > 0;
     }
+
+    public async Task<IEnumerable<MemberDto>> GetMembersAsync()
+    {
+        return await _context.Users
+            .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
+    }
     
+    public async Task<MemberDto> GetMemberByUsernameAsync(string username)
+    {
+        return await _context.Users
+            .Where(user => user.UserName == username)
+            .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+            .SingleOrDefaultAsync();
+    }
 }
