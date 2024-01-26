@@ -476,3 +476,4 @@ bld/
 msbuild.log
 msbuild.err
 msbuild.wrn
+API/DatingApp.API/appsettings.json
