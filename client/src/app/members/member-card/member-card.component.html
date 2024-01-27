@@ -1,6 +1,6 @@
 <div class="card mb-4" *ngIf="member">
   <div class="card-img-wrapper">
-    <img class="card-img-top" src="./assets/user.png" alt="{{member.knownAs}}">
+    <img class="card-img-top" src="{{member.photoUrl || './assets/user.png'}}" alt="{{member.knownAs}}">
 
     <ul class="list-inline member-icons animate text-center">
       <li class="list-inline-item">
