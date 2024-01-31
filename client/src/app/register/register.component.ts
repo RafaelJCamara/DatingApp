@@ -3,6 +3,7 @@ import { AccountService } from '../_services/account.service';
 import { ToastrService } from 'ngx-toastr';
 import {
   AbstractControl,
+  FormBuilder,
   FormControl,
   FormGroup,
   ValidatorFn,
@@ -22,27 +23,27 @@ export class RegisterComponent implements OnInit {
 
   constructor(
     private accountService: AccountService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private formBuilder: FormBuilder
   ) {}
   ngOnInit(): void {
     this.initializeForm();
   }
 
   initializeForm() {
-    this.registerForm = new FormGroup({
-      username: new FormControl('', [
-        Validators.required,
-        Validators.minLength(2),
-      ]),
-      password: new FormControl('', [
-        Validators.required,
-        Validators.minLength(4),
-        Validators.maxLength(8),
-      ]),
-      confirmPassword: new FormControl('', [
-        Validators.required,
-        this.matchValues('password'), //this here is a way of adding custom validators
-      ]),
+    this.registerForm = this.formBuilder.group({
+      username: ['', [Validators.required, Validators.minLength(2)]],
+      password: [
+        '',
+        [Validators.required, Validators.minLength(4), Validators.maxLength(8)],
+      ],
+      confirmPassword: [
+        '',
+        [
+          Validators.required,
+          this.matchValues('password'), //this here is a way of adding custom validators
+        ],
+      ],
     });
 
     //this here will allow us to validate if the confirm password field matches the new value that was inserted in the password field
