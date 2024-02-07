@@ -1,4 +1,5 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { UserParams } from './../_models/userParams';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Member } from '../_models/member';
@@ -15,16 +16,17 @@ export class MembersService {
 
   constructor(private http: HttpClient) {}
 
-  getMembers(page?: number, itemsPerPage?: number) {
+  getMembers(userParams: UserParams) {
     // //we are returning an observable
     // if (this.members.length > 0) return of(this.members);
 
     let params = new HttpParams(); //this is an utility class from Angular that allow us to set query strings parameters
 
-    if (page && itemsPerPage) {
-      params = params.append('pageNumber', page);
-      params = params.append('pageSize', itemsPerPage);
-    }
+    params = params.append('pageNumber', userParams.pageNumber);
+    params = params.append('pageSize', userParams.pageSize);
+    params = params.append('minAge', userParams.minAge);
+    params = params.append('maxAge', userParams.maxAge);
+    params = params.append('gender', userParams.gender);
 
     return this.http
       .get<Member[]>(this.baseUrl + 'users', { observe: 'response', params }) //to acess the headers, we must add this observe
