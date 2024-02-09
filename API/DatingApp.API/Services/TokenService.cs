@@ -20,7 +20,8 @@ public class TokenService : ITokenService
     {
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.NameId, user.UserName)
+            new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
             //anything added here will appear as a claim in the token
             //ex. if we a claim "Abc" with value "GDP" this will show on the claims if we decode the token
         };
