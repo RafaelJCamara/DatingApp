@@ -7,7 +7,8 @@
         <button routerLink="/members/{{member.userName}}" class="btn btn-primary"><i class="fa fa-user"></i></button>
       </li>
       <li class="list-inline-item">
-        <button (click)="addLike(member)" class="btn btn-primary"><i class="fa fa-heart"></i></button>
+        <button (click)="like(member)" class="btn btn-primary "><i
+            class="fa fa-heart {{member.isLikedByCurrentUser ? 'heart-liked' : ''}}"></i></button>
       </li>
       <li class="list-inline-item">
         <button class="btn btn-primary"><i class="fa fa-envelope"></i></button>

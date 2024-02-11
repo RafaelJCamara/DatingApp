@@ -18,12 +18,14 @@ namespace DatingApp.API.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IPhotoService _photoService;
+        private readonly ILikesRepository _likesRepository;
 
-        public UsersController(IUserRepository userRepository, IMapper mapper, IPhotoService photoService)
+        public UsersController(IUserRepository userRepository, IMapper mapper, IPhotoService photoService, ILikesRepository likesRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _photoService = photoService;
+            _likesRepository = likesRepository;
         }
 
         [HttpGet]
@@ -39,6 +41,14 @@ namespace DatingApp.API.Controllers
             }
             
             var users = await _userRepository.GetMembersAsync(userParams);
+
+            foreach(var member in users)
+            {
+                var currentMember = await _userRepository.GetMemberByUsernameAsync(member.UserName);
+                var like = await _likesRepository.GetUserLike(User.GetUserId(), currentMember.Id);
+
+                member.IsLikedByCurrentUser = like != null;
+            }
             
             Response.AddPaginationHeader(new PaginationHeader(users.CurrentPage, users.PageSize, users.TotalCount, users.TotalPages));
             

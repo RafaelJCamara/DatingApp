@@ -16,9 +16,20 @@ export class MemberCardComponent {
     private toastr: ToastrService
   ) {}
 
+  like(member: Member) {
+    if (member.isLikedByCurrentUser) this.dislike(member);
+    else this.addLike(member);
+  }
+
   addLike(member: Member) {
     this.memberService.addLike(member.userName).subscribe({
       next: () => this.toastr.success('You have liked ' + member.knownAs),
+    });
+  }
+
+  dislike(member: Member) {
+    this.memberService.dislike(member.userName).subscribe({
+      next: () => this.toastr.success('You have disliked ' + member.knownAs),
     });
   }
 }

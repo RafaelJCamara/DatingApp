@@ -47,16 +47,18 @@ public class LikesRepository : ILikesRepository
             users = likes.Select(like => like.SourceUser);
         }
 
-        var likedUsrs = users.Select(user => new LikeDto
+        var likedUsers = users.Select(user => new LikeDto
         {
             UserName = user.UserName,
             KnownAs = user.KnownAs,
             Age = user.DateOfBirth.CalculateAge(),
             PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain).Url,
             City = user.City,
-            Id = user.Id
+            Id = user.Id,
+            IsLikedByCurrentUser = likes.Any(like => like.TargetUserId == user.Id) || _context.Likes.AsQueryable().Any(like => like.SourceUserId == likesParams.UserId && like.TargetUserId == user.Id)
         });
         
-        return await PagedList<LikeDto>.CreateAsync(likedUsrs, likesParams.PageNumber, likesParams.PageSize);
+        return await PagedList<LikeDto>.CreateAsync(likedUsers, likesParams.PageNumber, likesParams.PageSize);
     }
+
 }
