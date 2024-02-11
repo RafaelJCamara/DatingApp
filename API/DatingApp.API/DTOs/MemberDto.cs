@@ -15,5 +15,6 @@ public class MemberDto
     public string? Interests { get; set; }
     public string? City { get; set; }
     public string? Country { get; set; }
+    public bool IsLikedByCurrentUser { get; set; }
     public List<PhotoDto> Photos { get; set; }
 }

@@ -48,6 +48,28 @@ public class LikesController : ControllerBase
         return BadRequest("Failed to like user");
     }
 
+    [HttpPost("dislike/{username}")]
+    public async Task<ActionResult> Dislike(string username)
+    {
+        var sourceUserId = User.GetUserId();
+        var disliked = await _userRepository.GetUserByUsernameAsync(username);
+        var sourceUser = await _likesRepository.GetUserWithLikes(sourceUserId);
+
+        if (disliked == null) return NotFound();
+
+        if (sourceUser.UserName == username) return BadRequest("You cannot dislike yourself");
+
+        var userLike = await _likesRepository.GetUserLike(sourceUserId, disliked.Id);
+
+        if (userLike == null) return BadRequest("You can't dislike this user");
+
+        sourceUser.LikedUsers.Remove(userLike);
+
+        if (await _userRepository.SaveAllAsync()) return Ok();
+
+        return BadRequest("Failed to dislike user");
+    }
+
     [HttpGet]
     public async Task<ActionResult<PagedList<LikeDto>>> GetUserLikes([FromQuery] LikesParams likesParams)
     {
@@ -59,4 +81,5 @@ public class LikesController : ControllerBase
         
         return Ok(users);
     }
+
 }
