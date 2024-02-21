@@ -11,7 +11,8 @@
             class="fa fa-heart {{member.isLikedByCurrentUser ? 'heart-liked' : ''}}"></i></button>
       </li>
       <li class="list-inline-item">
-        <button class="btn btn-primary"><i class="fa fa-envelope"></i></button>
+        <button class="btn btn-primary" routerLink="/members/{{member.userName}}" [queryParams]="{tab: 'Messages'}"><i
+            class="fa fa-envelope"></i></button>
       </li>
     </ul>
 
