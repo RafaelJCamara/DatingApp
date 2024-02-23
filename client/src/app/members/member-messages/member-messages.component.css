@@ -17,3 +17,7 @@
 .rounded-circle {
   max-height: 50px;
 }
+
+.message-check-status{
+  padding-left: 3px;
+}
