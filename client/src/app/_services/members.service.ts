@@ -1,13 +1,14 @@
 import { UserParams } from './../_models/userParams';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Member } from '../_models/member';
-import { map, of, take } from 'rxjs';
+import { map, take } from 'rxjs';
 import { PaginatedResult } from '../_models/pagination';
 import { User } from '../_models/user';
 import { AccountService } from './account.service';
 import { getPaginatedResult, getPaginationHeaders } from './paginationHelper';
+import { UpdateListWithObject } from '../utils/utils';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +17,6 @@ export class MembersService {
   baseUrl = environment.apiUrl;
   members: Member[] = [];
   pagintedResult: PaginatedResult<Member[]> = new PaginatedResult<Member[]>();
-  memberCache = new Map();
   userParams: UserParams | undefined;
   user: User | undefined;
 
@@ -67,29 +67,19 @@ export class MembersService {
       this.http
     ).pipe(
       map((response) => {
-        this.memberCache.set(Object.values(userParams).join('-'), response);
         return response;
       })
     );
   }
 
   getMember(username: string) {
-    const member = [...this.memberCache.values()]
-      .reduce((arr, elem) => arr.concat(elem.result), [])
-      .find((member: Member) => member.userName === username);
-
-    if (member) return of(member);
-
     return this.http.get<Member>(this.baseUrl + 'users/' + username);
   }
 
   updateMember(member: Member) {
-    return this.http.put(this.baseUrl + 'users', member).pipe(
-      map(() => {
-        const index = this.members.indexOf(member);
-        this.members[index] = member;
-      })
-    );
+    return this.http
+      .put(this.baseUrl + 'users', member)
+      .pipe(map(() => UpdateListWithObject(this.members, member)));
   }
 
   setMainPhoto(photoId: number) {
@@ -100,12 +90,16 @@ export class MembersService {
     return this.http.delete(this.baseUrl + 'users/delete-photo/' + photoId);
   }
 
-  addLike(username: string) {
-    return this.http.post(this.baseUrl + 'likes/' + username, {});
+  likeUser(member: Member) {
+    return this.http
+      .post(this.baseUrl + 'likes/' + member.userName, {})
+      .pipe(map(() => UpdateListWithObject(this.members, member)));
   }
 
-  dislike(username: string) {
-    return this.http.post(this.baseUrl + 'likes/dislike/' + username, {});
+  dislikeUser(member: Member) {
+    return this.http
+      .post(this.baseUrl + 'likes/dislike/' + member.userName, {})
+      .pipe(map(() => UpdateListWithObject(this.members, member)));
   }
 
   getLikes(predicate: string, pageNumber: number, pageSize: number) {
