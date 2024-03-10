@@ -42,11 +42,6 @@ public class UserRepository : IUserRepository
         _context.Entry(user).State = EntityState.Modified;
     }
 
-    public async Task<bool> SaveAllAsync()
-    {
-        return await _context.SaveChangesAsync() > 0;
-    }
-
     public async Task<PagedList<MemberDto>> GetMembersAsync(UserParams userParams)
     {
         var query = _context.Users.AsQueryable();

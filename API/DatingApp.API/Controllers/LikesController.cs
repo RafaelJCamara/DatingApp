@@ -11,27 +11,25 @@ namespace DatingApp.API.Controllers;
 [Route("api/[controller]")]
 public class LikesController : ControllerBase
 {
-    private readonly IUserRepository _userRepository;
-    private readonly ILikesRepository _likesRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public LikesController(IUserRepository userRepository, ILikesRepository likesRepository)
+    public LikesController(IUnitOfWork unitOfWork)
     {
-        _userRepository = userRepository;
-        _likesRepository = likesRepository;
+        _unitOfWork = unitOfWork;
     }
     
     [HttpPost("{username}")]
     public async Task<ActionResult> AddLike(string username)
     {
         var sourceUserId = User.GetUserId();
-        var likedUser = await _userRepository.GetUserByUsernameAsync(username);
-        var sourceUser = await _likesRepository.GetUserWithLikes(sourceUserId);
+        var likedUser = await _unitOfWork.UserRepository.GetUserByUsernameAsync(username);
+        var sourceUser = await _unitOfWork.LikesRepository.GetUserWithLikes(sourceUserId);
 
         if (likedUser == null) return NotFound();
 
         if (sourceUser.UserName == username) return BadRequest("You cannot like yourself");
 
-        var userLike = await _likesRepository.GetUserLike(sourceUserId, likedUser.Id);
+        var userLike = await _unitOfWork.LikesRepository.GetUserLike(sourceUserId, likedUser.Id);
 
         if (userLike != null) return BadRequest("You already like this user");
 
@@ -43,7 +41,7 @@ public class LikesController : ControllerBase
 
         sourceUser.LikedUsers.Add(userLike);
 
-        if (await _userRepository.SaveAllAsync()) return Ok();
+        if (await _unitOfWork.Complete()) return Ok();
 
         return BadRequest("Failed to like user");
     }
@@ -52,20 +50,20 @@ public class LikesController : ControllerBase
     public async Task<ActionResult> Dislike(string username)
     {
         var sourceUserId = User.GetUserId();
-        var disliked = await _userRepository.GetUserByUsernameAsync(username);
-        var sourceUser = await _likesRepository.GetUserWithLikes(sourceUserId);
+        var disliked = await _unitOfWork.UserRepository.GetUserByUsernameAsync(username);
+        var sourceUser = await _unitOfWork.LikesRepository.GetUserWithLikes(sourceUserId);
 
         if (disliked == null) return NotFound();
 
         if (sourceUser.UserName == username) return BadRequest("You cannot dislike yourself");
 
-        var userLike = await _likesRepository.GetUserLike(sourceUserId, disliked.Id);
+        var userLike = await _unitOfWork.LikesRepository.GetUserLike(sourceUserId, disliked.Id);
 
         if (userLike == null) return BadRequest("You can't dislike this user");
 
         sourceUser.LikedUsers.Remove(userLike);
 
-        if (await _userRepository.SaveAllAsync()) return Ok();
+        if (await _unitOfWork.Complete()) return Ok();
 
         return BadRequest("Failed to dislike user");
     }
@@ -75,7 +73,7 @@ public class LikesController : ControllerBase
     {
         likesParams.UserId = User.GetUserId();
         
-        var users = await _likesRepository.GetUserLikes(likesParams);
+        var users = await _unitOfWork.LikesRepository.GetUserLikes(likesParams);
         
         Response.AddPaginationHeader(new PaginationHeader(users.CurrentPage, users.PageSize, users.TotalCount, users.TotalPages));
         
