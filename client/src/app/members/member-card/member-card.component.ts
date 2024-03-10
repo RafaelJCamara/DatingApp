@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
 import { Member } from 'src/app/_models/member';
-import { MembersService } from 'src/app/_services/members.service';
+import { LikeService } from 'src/app/_services/like.service';
 import { PresenceService } from 'src/app/_services/presence.service';
 
 @Component({
@@ -13,8 +12,7 @@ export class MemberCardComponent {
   @Input() member: Member | undefined;
 
   constructor(
-    private memberService: MembersService,
-    private toastr: ToastrService,
+    private likeService: LikeService,
     public presenceService: PresenceService
   ) {}
 
@@ -24,16 +22,10 @@ export class MemberCardComponent {
   }
 
   likeUser(member: Member) {
-    member.isLikedByCurrentUser = true;
-    this.memberService.likeUser(member).subscribe({
-      next: () => this.toastr.success('You have liked ' + member.knownAs),
-    });
+    this.likeService.likeUser(member);
   }
 
   dislikeUser(member: Member) {
-    member.isLikedByCurrentUser = false;
-    this.memberService.dislikeUser(member).subscribe({
-      next: () => this.toastr.warning('You have disliked ' + member.knownAs),
-    });
+    this.likeService.dislikeUser(member);
   }
 }

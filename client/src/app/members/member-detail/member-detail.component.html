@@ -28,7 +28,9 @@
       </div>
       <div class="card-footer">
         <div class="btn-group d-flex">
-          <button class="btn btn-primary">Like</button>
+          <button *ngIf="!member.isLikedByCurrentUser" (click)="likeUser(member)" class="btn btn-primary">Like</button>
+          <button *ngIf="member.isLikedByCurrentUser" (click)="dislikeUser(member)"
+            class="btn btn-danger">Dislike</button>
           <button (click)="selectTab('Messages')" class="btn btn-success">Messages</button>
         </div>
       </div>
