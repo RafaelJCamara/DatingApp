@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Member } from 'src/app/_models/member';
 import { UserParams } from 'src/app/_models/userParams';
 import { MembersService } from 'src/app/_services/members.service';
+import { PresenceService } from 'src/app/_services/presence.service';
 
 @Component({
   selector: 'app-member-list',
@@ -18,8 +19,16 @@ export class MemberListComponent implements OnInit {
     { value: 'female', display: 'Females' },
   ];
 
-  constructor(private memberService: MembersService) {
+  constructor(
+    private memberService: MembersService,
+    private presenceService: PresenceService
+  ) {
     this.userParams = this.memberService.getUserParams();
+    this.presenceService.onlineUsers$.subscribe({
+      next: (_) => {
+        this.loadMembers();
+      },
+    });
   }
 
   ngOnInit(): void {
