@@ -19,19 +19,21 @@ export class MemberCardComponent {
   ) {}
 
   like(member: Member) {
-    if (member.isLikedByCurrentUser) this.dislike(member);
-    else this.addLike(member);
+    if (member.isLikedByCurrentUser) this.dislikeUser(member);
+    else this.likeUser(member);
   }
 
-  addLike(member: Member) {
-    this.memberService.addLike(member.userName).subscribe({
+  likeUser(member: Member) {
+    member.isLikedByCurrentUser = true;
+    this.memberService.likeUser(member).subscribe({
       next: () => this.toastr.success('You have liked ' + member.knownAs),
     });
   }
 
-  dislike(member: Member) {
-    this.memberService.dislike(member.userName).subscribe({
-      next: () => this.toastr.success('You have disliked ' + member.knownAs),
+  dislikeUser(member: Member) {
+    member.isLikedByCurrentUser = false;
+    this.memberService.dislikeUser(member).subscribe({
+      next: () => this.toastr.warning('You have disliked ' + member.knownAs),
     });
   }
 }
