@@ -61,4 +61,8 @@ public class LikesRepository : ILikesRepository
         return await PagedList<LikeDto>.CreateAsync(likedUsers, likesParams.PageNumber, likesParams.PageSize);
     }
 
+    public async Task<bool> DoesCurrentUserLikeTargetUser(int currentUserId, int targetUserId)
+    {
+        return (await _context.Likes.FindAsync(currentUserId, targetUserId)) != null;
+    }
 }

@@ -5,7 +5,6 @@ import { GalleryItem, GalleryModule, ImageItem } from 'ng-gallery';
 import { TabDirective, TabsModule, TabsetComponent } from 'ngx-bootstrap/tabs';
 import { TimeagoModule } from 'ngx-timeago';
 import { Member } from 'src/app/_models/member';
-import { MembersService } from 'src/app/_services/members.service';
 import { MemberMessagesComponent } from '../member-messages/member-messages.component';
 import { MessageService } from 'src/app/_services/message.service';
 import { Message } from 'src/app/_models/message';
@@ -13,6 +12,7 @@ import { PresenceService } from 'src/app/_services/presence.service';
 import { AccountService } from 'src/app/_services/account.service';
 import { User } from 'src/app/_models/user';
 import { take } from 'rxjs';
+import { LikeService } from 'src/app/_services/like.service';
 
 @Component({
   selector: 'app-member-detail',
@@ -39,7 +39,8 @@ export class MemberDetailComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private messageService: MessageService,
     private route: ActivatedRoute,
-    public presenceService: PresenceService
+    public presenceService: PresenceService,
+    private likeService: LikeService
   ) {
     this.accountService.currentUser$.pipe(take(1)).subscribe({
       next: (user) => {
@@ -92,5 +93,13 @@ export class MemberDetailComponent implements OnInit, OnDestroy {
     for (const photo of this.member?.photos) {
       this.images.push(new ImageItem({ src: photo?.url, thumb: photo?.url }));
     }
+  }
+
+  likeUser(member: Member) {
+    this.likeService.likeUser(member);
+  }
+
+  dislikeUser(member: Member) {
+    this.likeService.dislikeUser(member);
   }
 }

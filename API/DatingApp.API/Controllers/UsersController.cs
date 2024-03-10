@@ -1,4 +1,5 @@
 using AutoMapper;
+using AutoMapper.Execution;
 using DatingApp.API.DTOs;
 using DatingApp.API.Entities;
 using DatingApp.API.Extensions;
@@ -43,9 +44,8 @@ namespace DatingApp.API.Controllers
             foreach(var member in users)
             {
                 var currentMember = await _unitOfWork.UserRepository.GetMemberByUsernameAsync(member.UserName);
-                var like = await _unitOfWork.LikesRepository.GetUserLike(User.GetUserId(), currentMember.Id);
 
-                member.IsLikedByCurrentUser = like != null;
+                member.IsLikedByCurrentUser = await _unitOfWork.LikesRepository.DoesCurrentUserLikeTargetUser(User.GetUserId(), currentMember.Id);
             }
             
             Response.AddPaginationHeader(new PaginationHeader(users.CurrentPage, users.PageSize, users.TotalCount, users.TotalPages));
@@ -56,7 +56,11 @@ namespace DatingApp.API.Controllers
         [HttpGet("{username}")]
         public async Task<ActionResult<MemberDto?>> GetUser(string username)
         {
-            return Ok(await _unitOfWork.UserRepository.GetMemberByUsernameAsync(username));
+            var currentMember = await _unitOfWork.UserRepository.GetMemberByUsernameAsync(username);
+
+            currentMember.IsLikedByCurrentUser = await _unitOfWork.LikesRepository.DoesCurrentUserLikeTargetUser(User.GetUserId(), currentMember.Id);
+
+            return Ok(currentMember);
         }
         
         [HttpPut]
