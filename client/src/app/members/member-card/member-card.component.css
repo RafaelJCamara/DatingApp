@@ -54,3 +54,9 @@
   animation: fa-blink 1.5s linear infinite;
   color: rgb(1, 189, 42);
 }
+
+.card-img-top {
+  width: 100%;
+  height: 15vw;
+  object-fit: cover;
+}
