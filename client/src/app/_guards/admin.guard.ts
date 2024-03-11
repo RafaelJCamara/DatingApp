@@ -11,7 +11,7 @@ export const adminGuard: CanActivateFn = (route, state) => {
   return accountService.currentUser$.pipe(
     map((user) => {
       if (!user) return false;
-      if (user.roles.includes('Admin') || user.roles.includes('Moderator')) {
+      if (user.roles.includes('Admin')) {
         return true;
       } else {
         toastr.error('You cannot enter this area');
