@@ -2,32 +2,33 @@
 using DatingApp.Application.UseCases.Users.Common.Interfaces;
 using MediatR;
 
-namespace DatingApp.Application.UseCases.Users.Common.Behaviours
+namespace DatingApp.Application.UseCases.Users.Common.Behaviours;
+
+public class LogUserActivityBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
-    public class LogUserActivityBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+
+    private readonly IUnitOfWork _unitOfWork;
+
+    private readonly IUser _currentUser;
+
+    public LogUserActivityBehaviour(IUnitOfWork unitOfWork, IUser currentUser)
     {
+        _unitOfWork = unitOfWork;
+        _currentUser = currentUser;
+    }
 
-        private readonly IUnitOfWork _unitOfWork;
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    {
+        //if (_currentUser.IsAuthenticated!.Value) throw new UnauthorizedAccessException();
 
-        private readonly IUser _currentUser;
+        //var user = await _unitOfWork.UserRepository.GetUserByIdAsync(_currentUser.Id!.Value);
 
-        public LogUserActivityBehaviour(IUnitOfWork unitOfWork, IUser currentUser)
-        {
-            _unitOfWork = unitOfWork;
-            _currentUser = currentUser;
-        }
+        //user.LastActive = DateTime.UtcNow;
 
-        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
-        {
-            if (_currentUser.IsAuthenticated!.Value) throw new UnauthorizedAccessException();
+        //await _unitOfWork.Complete();
 
-            var user = await _unitOfWork.UserRepository.GetUserByIdAsync(_currentUser.Id!.Value);
+        //return await next();
 
-            user.LastActive = DateTime.UtcNow;
-
-            await _unitOfWork.Complete();
-
-            return await next();
-        }
+        return await next();
     }
 }

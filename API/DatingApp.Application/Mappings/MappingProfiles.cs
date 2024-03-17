@@ -14,8 +14,12 @@ public class MappingProfiles : Profile
             .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.DateOfBirth.CalculateAge()));
 
         CreateMap<Photo, PhotoDto>();
+
         CreateMap<MemberUpdateDto, AppUser>();
-        CreateMap<RegisterDto, AppUser>();
+
+        CreateMap<RegisterDto, AppUser>()
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Username.ToLower()));
+
         CreateMap<Message, MessageDto>()
             .ForMember(d => d.SenderPhotoUrl, o => o.MapFrom(s => s.Sender.Photos
                 .FirstOrDefault(x => x.IsMain).Url))

@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace DatingApp.Application.UseCases.Account.Services;
+namespace DatingApp.Application.UseCases.Account.Common.Services;
 
 public class TokenService : ITokenService
 {
