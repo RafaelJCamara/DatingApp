@@ -1,6 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatingApp.API", "DatingApp.API\DatingApp.API.csproj", "{D2567F4B-45C5-401A-8017-0FC0DE6A0278}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34009.444
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatingApp.Presentation", "DatingApp.API\DatingApp.Presentation.csproj", "{D2567F4B-45C5-401A-8017-0FC0DE6A0278}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatingApp.Application", "DatingApp.Application\DatingApp.Application.csproj", "{4DCC7755-0F44-44FC-A19B-8BE44F59CD67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatingApp.Infrastructure", "DatingApp.Infrastructure\DatingApp.Infrastructure.csproj", "{60CC295C-BBFD-42ED-A6B4-24FF085B25EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatingApp.Domain", "DatingApp.Domain\DatingApp.Domain.csproj", "{D882A545-E84B-4025-B62A-C9F325DC43D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +21,23 @@ Global
 		{D2567F4B-45C5-401A-8017-0FC0DE6A0278}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2567F4B-45C5-401A-8017-0FC0DE6A0278}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2567F4B-45C5-401A-8017-0FC0DE6A0278}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DCC7755-0F44-44FC-A19B-8BE44F59CD67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DCC7755-0F44-44FC-A19B-8BE44F59CD67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DCC7755-0F44-44FC-A19B-8BE44F59CD67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DCC7755-0F44-44FC-A19B-8BE44F59CD67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60CC295C-BBFD-42ED-A6B4-24FF085B25EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60CC295C-BBFD-42ED-A6B4-24FF085B25EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60CC295C-BBFD-42ED-A6B4-24FF085B25EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60CC295C-BBFD-42ED-A6B4-24FF085B25EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D882A545-E84B-4025-B62A-C9F325DC43D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D882A545-E84B-4025-B62A-C9F325DC43D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D882A545-E84B-4025-B62A-C9F325DC43D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D882A545-E84B-4025-B62A-C9F325DC43D7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C5B45D33-63DC-4884-A749-6F397D2F5FD0}
 	EndGlobalSection
 EndGlobal

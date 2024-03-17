@@ -1,5 +1,5 @@
-using DatingApp.API.Data;
-using DatingApp.API.Entities;
+using DatingApp.Domain.Models;
+using DatingApp.Infrastructure.Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;

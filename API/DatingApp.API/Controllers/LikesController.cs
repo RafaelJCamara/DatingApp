@@ -1,9 +1,11 @@
-using DatingApp.API.DTOs;
-using DatingApp.API.Entities;
+using DatingApp.Application.Dtos;
 using DatingApp.API.Extensions;
 using DatingApp.API.Helpers;
-using DatingApp.API.Interfaces;
+using DatingApp.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using DatingApp.Application.Common.Models;
+using DatingApp.Application.Common.Interfaces;
+using DatingApp.Application.Common.Extensions;
 
 namespace DatingApp.API.Controllers;
 
@@ -69,7 +71,7 @@ public class LikesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedList<LikeDto>>> GetUserLikes([FromQuery] LikesParams likesParams)
+    public async Task<ActionResult<PagedList<LikeDto>>> GetUserLikes([FromQuery] LikesParamsDto likesParams)
     {
         likesParams.UserId = User.GetUserId();
         

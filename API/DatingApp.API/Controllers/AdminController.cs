@@ -1,4 +1,4 @@
-﻿using DatingApp.API.Entities;
+﻿using DatingApp.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

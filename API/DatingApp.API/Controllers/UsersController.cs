@@ -1,16 +1,17 @@
 using AutoMapper;
-using AutoMapper.Execution;
-using DatingApp.API.DTOs;
-using DatingApp.API.Entities;
+using DatingApp.Application.Dtos;
 using DatingApp.API.Extensions;
 using DatingApp.API.Helpers;
-using DatingApp.API.Interfaces;
+using DatingApp.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using DatingApp.Application.Common.Models;
+using DatingApp.Application.Common.Interfaces;
+using DatingApp.Application.Interfaces.Services;
+using DatingApp.Application.Common.Extensions;
 
 namespace DatingApp.API.Controllers
 {
-    [ServiceFilter(typeof(LogUserActivity))]
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -28,7 +29,7 @@ namespace DatingApp.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery] UserParams userParams)
+        public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery] UserParamsDto userParams)
         {
             var gender = await _unitOfWork.UserRepository.GetUserGender(User.GetUsername());
 

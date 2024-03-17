@@ -1,10 +1,10 @@
 using AutoMapper;
-using DatingApp.API.DTOs;
-using DatingApp.API.Entities;
-using DatingApp.API.Interfaces;
+using DatingApp.Application.Dtos;
+using DatingApp.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using DatingApp.Application.Interfaces.Services;
 
 namespace DatingApp.API.Controllers;
 
