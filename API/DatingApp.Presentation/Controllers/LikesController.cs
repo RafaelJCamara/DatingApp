@@ -1,11 +1,12 @@
-using DatingApp.Application.Dtos;
 using DatingApp.API.Extensions;
 using DatingApp.API.Helpers;
-using DatingApp.Domain.Models;
-using Microsoft.AspNetCore.Mvc;
 using DatingApp.Application.Common.Models;
-using DatingApp.Application.Common.Interfaces;
-using DatingApp.Application.Common.Extensions;
+using DatingApp.Application.Dtos;
+using DatingApp.Application.UseCases.Likes.Commands.AddLike;
+using DatingApp.Application.UseCases.Likes.Commands.Dislike;
+using DatingApp.Application.UseCases.Likes.Queries.GetUserLikes;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DatingApp.API.Controllers;
 
@@ -13,73 +14,35 @@ namespace DatingApp.API.Controllers;
 [Route("api/[controller]")]
 public class LikesController : ControllerBase
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMediator _mediator;
 
-    public LikesController(IUnitOfWork unitOfWork)
+    public LikesController(IMediator mediator)
     {
-        _unitOfWork = unitOfWork;
+        _mediator = mediator;
     }
-    
+
     [HttpPost("{username}")]
-    public async Task<ActionResult> AddLike(string username)
+    public async Task<ActionResult> AddLike(string targetUsername)
     {
-        var sourceUserId = User.GetUserId();
-        var likedUser = await _unitOfWork.UserRepository.GetUserByUsernameAsync(username);
-        var sourceUser = await _unitOfWork.LikesRepository.GetUserWithLikes(sourceUserId);
-
-        if (likedUser == null) return NotFound();
-
-        if (sourceUser.UserName == username) return BadRequest("You cannot like yourself");
-
-        var userLike = await _unitOfWork.LikesRepository.GetUserLike(sourceUserId, likedUser.Id);
-
-        if (userLike != null) return BadRequest("You already like this user");
-
-        userLike = new UserLike
-        {
-            SourceUserId = sourceUserId,
-            TargetUserId = likedUser.Id
-        };
-
-        sourceUser.LikedUsers.Add(userLike);
-
-        if (await _unitOfWork.Complete()) return Ok();
-
-        return BadRequest("Failed to like user");
+        string? addLikeValidationResult = await _mediator.Send(new AddLikeCommand(targetUsername));
+        return addLikeValidationResult is null ? NoContent() : BadRequest(addLikeValidationResult);
     }
 
     [HttpPost("dislike/{username}")]
-    public async Task<ActionResult> Dislike(string username)
+    public async Task<ActionResult> Dislike(string targetUsername)
     {
-        var sourceUserId = User.GetUserId();
-        var disliked = await _unitOfWork.UserRepository.GetUserByUsernameAsync(username);
-        var sourceUser = await _unitOfWork.LikesRepository.GetUserWithLikes(sourceUserId);
-
-        if (disliked == null) return NotFound();
-
-        if (sourceUser.UserName == username) return BadRequest("You cannot dislike yourself");
-
-        var userLike = await _unitOfWork.LikesRepository.GetUserLike(sourceUserId, disliked.Id);
-
-        if (userLike == null) return BadRequest("You can't dislike this user");
-
-        sourceUser.LikedUsers.Remove(userLike);
-
-        if (await _unitOfWork.Complete()) return Ok();
-
-        return BadRequest("Failed to dislike user");
+        string? dislikeValidationResult = await _mediator.Send(new DislikeCommand(targetUsername));
+        return dislikeValidationResult is null ? NoContent() : BadRequest(dislikeValidationResult);
     }
 
     [HttpGet]
     public async Task<ActionResult<PagedList<LikeDto>>> GetUserLikes([FromQuery] LikesParamsDto likesParams)
     {
-        likesParams.UserId = User.GetUserId();
+        var userLikes = await _mediator.Send(new GetUserLikesCommand(likesParams));
         
-        var users = await _unitOfWork.LikesRepository.GetUserLikes(likesParams);
+        Response.AddPaginationHeader(new PaginationHeader(userLikes.CurrentPage, userLikes.PageSize, userLikes.TotalCount, userLikes.TotalPages));
         
-        Response.AddPaginationHeader(new PaginationHeader(users.CurrentPage, users.PageSize, users.TotalCount, users.TotalPages));
-        
-        return Ok(users);
+        return Ok(userLikes);
     }
 
 }
