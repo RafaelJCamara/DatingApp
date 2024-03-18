@@ -1,10 +1,10 @@
 ﻿using DatingApp.Application.Common.Interfaces;
-using DatingApp.Application.UseCases.Users.Common.Interfaces;
 using MediatR;
 
 namespace DatingApp.Application.UseCases.Users.Common.Behaviours;
 
-public class LogUserActivityBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+public class LogUserActivityBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> 
+    where TRequest : notnull
 {
 
     private readonly IUnitOfWork _unitOfWork;
@@ -26,8 +26,6 @@ public class LogUserActivityBehaviour<TRequest, TResponse> : IPipelineBehavior<T
         //user.LastActive = DateTime.UtcNow;
 
         //await _unitOfWork.Complete();
-
-        //return await next();
 
         return await next();
     }

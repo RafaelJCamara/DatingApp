@@ -1,4 +1,3 @@
-using DatingApp.API.Middleware;
 using DatingApp.Application.Extensions;
 using DatingApp.Infrastructure.Extensions;
 using DatingApp.Presentation.Extensions;

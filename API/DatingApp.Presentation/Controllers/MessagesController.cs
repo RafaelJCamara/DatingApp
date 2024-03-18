@@ -1,11 +1,11 @@
-using AutoMapper;
-using DatingApp.Application.Dtos;
 using DatingApp.API.Extensions;
 using DatingApp.API.Helpers;
-using DatingApp.Domain.Models;
+using DatingApp.Application.Dtos;
+using DatingApp.Application.UseCases.Messages.Commands.CreateMessage;
+using DatingApp.Application.UseCases.Messages.Commands.DeleteMessage;
+using DatingApp.Application.UseCases.Messages.Queries.GetMessagesForUser;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using DatingApp.Application.Common.Interfaces;
-using DatingApp.Application.Common.Extensions;
 
 namespace DatingApp.API.Controllers;
 
@@ -13,79 +13,35 @@ namespace DatingApp.API.Controllers;
 [Route("api/[controller]")]
 public class MessagesController : ControllerBase
 {
-    private readonly IMapper _mapper;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMediator _mediator;
 
-    public MessagesController(IMapper mapper, IUnitOfWork unitOfWork)
+    public MessagesController(IMediator mediator)
     {
-        _mapper = mapper;
-        this._unitOfWork = unitOfWork;
+        _mediator = mediator;
     }
 
     [HttpPost]
-    public async Task<ActionResult<MessageDto>> CreateMessage(CreateMessageDto createMessageDto)
+    public async Task<ActionResult<MessageDto>> CreateMessage(CreateMessageDto messageToCreate)
     {
-        var username = User.GetUsername();
-
-        if (username == createMessageDto.RecipientUsername.ToLower())
-            return BadRequest("You cannot send messages to yourself");
-
-        var sender = await _unitOfWork.UserRepository.GetUserByUsernameAsync(username);
-        var recipient = await _unitOfWork.UserRepository.GetUserByUsernameAsync(createMessageDto.RecipientUsername);
-
-        if (recipient == null) return NotFound();
-
-        var message = new Message
-        {
-            Sender = sender,
-            Recipient = recipient,
-            SenderUsername = sender.UserName,
-            RecipientUsername = recipient.UserName,
-            Content = createMessageDto.Content
-        };
-
-        _unitOfWork.MessageRepository.AddMessage(message);
-
-        if (await _unitOfWork.Complete()) return Ok(_mapper.Map<MessageDto>(message));
-
-        return BadRequest("Failed to send message");
+        (string sendCreateMessageValidationResult, MessageDto? newMessage) = await _mediator.Send(new CreateMessageCommand(messageToCreate));
+        return sendCreateMessageValidationResult is null ? newMessage : BadRequest(sendCreateMessageValidationResult);
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MessageDto>>> GetMessagesForUser([FromQuery] MessageParamsDto messageParams)
     {
-        messageParams.Username = User.GetUsername();
+        var messages = await _mediator.Send(new GetMessagesForUserCommand(messageParams));
 
-        var messages = await _unitOfWork.MessageRepository.GetMessagesForUser(messageParams);
+        Response.AddPaginationHeader(new PaginationHeader(messages.CurrentPage, messages.PageSize, messages.TotalCount, messages.TotalPages));
 
-        Response.AddPaginationHeader(new PaginationHeader(messages.CurrentPage,
-            messages.PageSize, messages.TotalCount, messages.TotalPages));
-
-        return messages;
+        return Ok(messages);
     }
 
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteMessage(int id)
     {
-        var username = User.GetUsername();
-
-        var message = await _unitOfWork.MessageRepository.GetMessage(id);
-
-        if (message.SenderUsername != username && message.RecipientUsername != username)
-            return Unauthorized();
-
-        if (message.SenderUsername == username) message.SenderDeleted = true;
-
-        if (message.RecipientUsername == username) message.RecipientDeleted = true;
-
-        if (message.SenderDeleted && message.RecipientDeleted)
-        {
-            _unitOfWork.MessageRepository.DeleteMessage(message);
-        }
-
-        if (await _unitOfWork.Complete()) return Ok();
-
-        return BadRequest("Problem deleting the message");
+        string? deleteMessageValidationResult = await _mediator.Send(new DeleteMessageCommand(id));
+        return deleteMessageValidationResult is null ? NoContent() : BadRequest(deleteMessageValidationResult);
     }
 
 }

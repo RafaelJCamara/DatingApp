@@ -1,14 +1,16 @@
-using AutoMapper;
-using DatingApp.Application.Dtos;
 using DatingApp.API.Extensions;
 using DatingApp.API.Helpers;
-using DatingApp.Domain.Models;
+using DatingApp.Application.Common.Models;
+using DatingApp.Application.Dtos;
+using DatingApp.Application.UseCases.Users.Commands.AddPhotoToUser;
+using DatingApp.Application.UseCases.Users.Commands.DeleteUserPhoto;
+using DatingApp.Application.UseCases.Users.Commands.SetUserMainPhoto;
+using DatingApp.Application.UseCases.Users.Commands.UpdateUser;
+using DatingApp.Application.UseCases.Users.Queries.GetPaginatedUsers;
+using DatingApp.Application.UseCases.Users.Queries.GetUser;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using DatingApp.Application.Common.Models;
-using DatingApp.Application.Common.Interfaces;
-using DatingApp.Application.Interfaces.Services;
-using DatingApp.Application.Common.Extensions;
 
 namespace DatingApp.API.Controllers;
 
@@ -17,37 +19,17 @@ namespace DatingApp.API.Controllers;
 [Authorize]
 public class UsersController : ControllerBase
 {
-    private readonly IMapper _mapper;
-    private readonly IPhotoService _photoService;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMediator _mediator;
 
-    public UsersController(IMapper mapper, IPhotoService photoService, IUnitOfWork unitOfWork)
+    public UsersController(IMediator mediator)
     {
-        _mapper = mapper;
-        _photoService = photoService;
-        _unitOfWork = unitOfWork;
+        _mediator = mediator;
     }
 
     [HttpGet]
     public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery] UserParamsDto userParams)
     {
-        var gender = await _unitOfWork.UserRepository.GetUserGender(User.GetUsername());
-
-        userParams.CurrentUsername = User.GetUsername();
-
-        if (string.IsNullOrEmpty(userParams.Gender))
-        {
-            userParams.Gender = gender == "male" ? "female" : "male";
-        }
-        
-        var users = await _unitOfWork.UserRepository.GetMembersAsync(userParams);
-
-        foreach(var member in users)
-        {
-            var currentMember = await _unitOfWork.UserRepository.GetMemberByUsernameAsync(member.UserName);
-
-            member.IsLikedByCurrentUser = await _unitOfWork.LikesRepository.DoesCurrentUserLikeTargetUser(User.GetUserId(), currentMember.Id);
-        }
+        var users = await _mediator.Send(new GetPaginatedUsersQuery(userParams));
         
         Response.AddPaginationHeader(new PaginationHeader(users.CurrentPage, users.PageSize, users.TotalCount, users.TotalPages));
         
@@ -57,96 +39,39 @@ public class UsersController : ControllerBase
     [HttpGet("{username}")]
     public async Task<ActionResult<MemberDto?>> GetUser(string username)
     {
-        var currentMember = await _unitOfWork.UserRepository.GetMemberByUsernameAsync(username);
-
-        currentMember.IsLikedByCurrentUser = await _unitOfWork.LikesRepository.DoesCurrentUserLikeTargetUser(User.GetUserId(), currentMember.Id);
-
-        return Ok(currentMember);
+        return await _mediator.Send(new GetUserQuery(username));
     }
     
     [HttpPut]
-    public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto)
+    public async Task<ActionResult> UpdateUser(UserUpdateDto userUpdateDto)
     {
-        var user = await _unitOfWork.UserRepository.GetUserByUsernameAsync(User.GetUsername());
+        (bool updateUserResult, string? errorMessage) = await _mediator.Send(new UpdateUserCommand(userUpdateDto));
 
-        if (user is null) return NotFound();
-
-        _mapper.Map(memberUpdateDto, user);
-
-        if (await _unitOfWork.Complete()) return NoContent();
-
-        return BadRequest("Failed to update the user.");
+        return updateUserResult ? NoContent() : BadRequest(errorMessage!);
     }
     
     [HttpPost("add-photo")]
-    public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
+    public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile newPhoto)
     {
-        var user = await _unitOfWork.UserRepository.GetUserByUsernameAsync(User.GetUsername());
+        (PhotoDto? addPhotoResult, string? errorMessage) = await _mediator.Send(new AddPhotoToUserCommand(newPhoto));
 
-        var result = await _photoService.AddPhotoAsync(file);
-
-        if (result.Error != null) return BadRequest(result.Error.Message);
-
-        var photo = new Photo
-        {
-            Url = result.SecureUrl.AbsoluteUri,
-            PublicId = result.PublicId,
-            IsMain = user.Photos.Count == 0
-        };
-
-        user.Photos.Add(photo);
-
-        if (await _unitOfWork.Complete())
-            return CreatedAtAction(nameof(GetUser), new { username = user.UserName },
-                _mapper.Map<PhotoDto>(photo));
-
-        return BadRequest("Problem adding photo");
+        return errorMessage is null ? addPhotoResult : BadRequest(errorMessage!);
     }
 
     [HttpPut("set-main-photo/{photoId}")]
     public async Task<ActionResult> SetMainPhoto(int photoId)
     {
-        var user = await _unitOfWork.UserRepository.GetUserByUsernameAsync(User.GetUsername());
+        (bool setMainPhotoResult, string? errorMessage) = await _mediator.Send(new SetUserMainPhotoCommand(photoId));
 
-        if (user == null) return NotFound();
-
-        var photo = user.Photos.FirstOrDefault(x => x.Id == photoId);
-
-        if (photo == null) return NotFound();
-
-        if (photo.IsMain) return BadRequest("This is already your main photo");
-
-        var currentMain = user.Photos.FirstOrDefault(x => x.IsMain);
-        if (currentMain != null) currentMain.IsMain = false;
-        photo.IsMain = true;
-
-        if (await _unitOfWork.Complete()) return NoContent();
-        
-        return BadRequest("Problem setting the main photo");
+        return setMainPhotoResult ? NoContent() : BadRequest(errorMessage!);
     }
     
     [HttpDelete("delete-photo/{photoId}")]
     public async Task<ActionResult> DeletePhoto(int photoId)
     {
-        var user = await _unitOfWork.UserRepository.GetUserByUsernameAsync(User.GetUsername());
+        (bool photoDeletionResult, string? errorMessage) = await _mediator.Send(new DeleteUserPhotoCommand(photoId));
 
-        var photo = user.Photos.FirstOrDefault(x => x.Id == photoId);
-
-        if (photo == null) return NotFound();
-
-        if (photo.IsMain) return BadRequest("You can't delete your main photo");
-
-        if (photo.PublicId != null)
-        {
-            var result = await _photoService.DeletePhotoAsync(photo.PublicId);
-            if (result.Error != null) return BadRequest(result.Error.Message);
-        }
-
-        user.Photos.Remove(photo);
-
-        if (await _unitOfWork.Complete()) return NoContent();
-        
-        return BadRequest("Problem deleting photo");
+        return photoDeletionResult ? NoContent() : BadRequest(errorMessage!);
     }
     
 }

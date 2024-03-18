@@ -1,5 +1,5 @@
 ﻿using DatingApp.Application.Common.Extensions;
-using DatingApp.Application.UseCases.Users.Common.Interfaces;
+using DatingApp.Application.Common.Interfaces;
 
 namespace DatingApp.Presentation.Helpers;
 

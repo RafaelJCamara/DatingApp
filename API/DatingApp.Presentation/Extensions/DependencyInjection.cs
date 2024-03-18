@@ -1,7 +1,7 @@
 ﻿using DatingApp.API.Extensions;
 using DatingApp.API.Middleware;
+using DatingApp.Application.Common.Interfaces;
 using DatingApp.Application.Extensions;
-using DatingApp.Application.UseCases.Users.Common.Interfaces;
 using DatingApp.Infrastructure.Extensions;
 using DatingApp.Presentation.Helpers;
 

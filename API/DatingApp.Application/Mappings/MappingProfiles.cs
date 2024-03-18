@@ -15,7 +15,7 @@ public class MappingProfiles : Profile
 
         CreateMap<Photo, PhotoDto>();
 
-        CreateMap<MemberUpdateDto, AppUser>();
+        CreateMap<UserUpdateDto, AppUser>();
 
         CreateMap<RegisterDto, AppUser>()
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Username.ToLower()));
