@@ -4,5 +4,5 @@ using MediatR;
 
 namespace DatingApp.Application.UseCases.Likes.Queries.GetUserLikes
 {
-    public sealed record GetUserLikesCommand(LikesParamsDto LikesParams) : IRequest<PagedList<LikeDto>>;
+    public sealed record GetUserLikesQuery(LikesParamsDto LikesParams) : IRequest<PagedList<LikeDto>>;
 }

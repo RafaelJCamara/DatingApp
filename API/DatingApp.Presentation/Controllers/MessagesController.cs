@@ -30,7 +30,7 @@ public class MessagesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MessageDto>>> GetMessagesForUser([FromQuery] MessageParamsDto messageParams)
     {
-        var messages = await _mediator.Send(new GetMessagesForUserCommand(messageParams));
+        var messages = await _mediator.Send(new GetMessagesForUserQuery(messageParams));
 
         Response.AddPaginationHeader(new PaginationHeader(messages.CurrentPage, messages.PageSize, messages.TotalCount, messages.TotalPages));
 

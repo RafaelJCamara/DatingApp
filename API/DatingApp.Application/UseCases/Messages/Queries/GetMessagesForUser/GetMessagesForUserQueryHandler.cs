@@ -5,18 +5,18 @@ using MediatR;
 
 namespace DatingApp.Application.UseCases.Messages.Queries.GetMessagesForUser
 {
-    public sealed class GetMessagesForUserCommandHandler : IRequestHandler<GetMessagesForUserCommand, PagedList<MessageDto>>
+    public sealed class GetMessagesForUserQueryHandler : IRequestHandler<GetMessagesForUserQuery, PagedList<MessageDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUser _currentUser;
 
-        public GetMessagesForUserCommandHandler(IUnitOfWork unitOfWork, IUser currentUser)
+        public GetMessagesForUserQueryHandler(IUnitOfWork unitOfWork, IUser currentUser)
         {
             _unitOfWork = unitOfWork;
             _currentUser = currentUser;
         }
 
-        public async Task<PagedList<MessageDto>> Handle(GetMessagesForUserCommand request, CancellationToken cancellationToken)
+        public async Task<PagedList<MessageDto>> Handle(GetMessagesForUserQuery request, CancellationToken cancellationToken)
         {
             request.MessageParams.Username = _currentUser.Username;
 

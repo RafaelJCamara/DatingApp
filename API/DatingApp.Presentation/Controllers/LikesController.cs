@@ -38,7 +38,7 @@ public class LikesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PagedList<LikeDto>>> GetUserLikes([FromQuery] LikesParamsDto likesParams)
     {
-        var userLikes = await _mediator.Send(new GetUserLikesCommand(likesParams));
+        var userLikes = await _mediator.Send(new GetUserLikesQuery(likesParams));
         
         Response.AddPaginationHeader(new PaginationHeader(userLikes.CurrentPage, userLikes.PageSize, userLikes.TotalCount, userLikes.TotalPages));
         
