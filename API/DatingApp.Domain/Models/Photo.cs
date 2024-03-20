@@ -12,4 +12,9 @@ public class Photo
 
     public int AppUserId { get; set; }
     public AppUser AppUser { get; set; } = default!;
+
+    public void DisablePhotoAsMainPhoto() => IsMain = false;
+
+    public void SetCurrentPhotoAsMainPhoto() => IsMain = true;
+
 }

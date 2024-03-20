@@ -20,16 +20,8 @@ namespace DatingApp.Application.UseCases.Users.Commands.SetUserMainPhoto
 
             if (user == null) return (false, "User not found.");
 
-            var photo = user.Photos.FirstOrDefault(x => x.Id == request.PhotoId);
-
-            if (photo == null) return (false, "Photo not found.");
-
-            if (photo.IsMain) return (false, "This is already your main photo");
-
-            var currentMain = user.Photos.FirstOrDefault(x => x.IsMain);
-            if (currentMain != null) currentMain.IsMain = false;
-            photo.IsMain = true;
-
+            user.SwitchMainPhoto(request.PhotoId);
+            
             if (await _unitOfWork.Complete()) return (true, null);
 
             return (false, "Problem setting the main photo");

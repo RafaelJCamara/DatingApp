@@ -2,7 +2,6 @@
 using DatingApp.Application.Common.Interfaces;
 using DatingApp.Application.Dtos;
 using DatingApp.Application.Interfaces.Services;
-using DatingApp.Domain.Models;
 using MediatR;
 
 namespace DatingApp.Application.UseCases.Users.Commands.AddPhotoToUser
@@ -30,17 +29,10 @@ namespace DatingApp.Application.UseCases.Users.Commands.AddPhotoToUser
 
             if (result.Error != null) return (null, result.Error.Message);
 
-            var photo = new Photo
-            {
-                Url = result.SecureUrl.AbsoluteUri,
-                PublicId = result.PublicId,
-                IsMain = user.Photos.Count == 0
-            };
-
-            user.Photos.Add(photo);
+            var newPhoto = user.AddPhoto(result.SecureUri.AbsoluteUri, result.PublicId);
 
             if (await _unitOfWork.Complete())
-                return (_mapper.Map<PhotoDto>(photo), null);
+                return (_mapper.Map<PhotoDto>(newPhoto), null);
 
             return (null, "Problem adding photo");
         }

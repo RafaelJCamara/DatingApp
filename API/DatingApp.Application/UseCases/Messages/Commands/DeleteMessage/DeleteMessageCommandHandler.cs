@@ -20,17 +20,13 @@ namespace DatingApp.Application.UseCases.Messages.Commands.DeleteMessage
 
             var message = await _unitOfWork.MessageRepository.GetMessage(request.MessageId);
 
-            if (message.SenderUsername != username && message.RecipientUsername != username)
+            if (!message.BelongsToUser(username))
                 return "Unauthorized.";
 
-            if (message.SenderUsername == username) message.SenderDeleted = true;
+            message.SetMessageAsDeleted(username);
 
-            if (message.RecipientUsername == username) message.RecipientDeleted = true;
-
-            if (message.SenderDeleted && message.RecipientDeleted)
-            {
+            if (message.CanMessageBeFullyDeleted())
                 _unitOfWork.MessageRepository.DeleteMessage(message);
-            }
 
             if (await _unitOfWork.Complete()) return null;
 

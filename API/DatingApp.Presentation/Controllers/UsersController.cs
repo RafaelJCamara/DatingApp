@@ -51,9 +51,9 @@ public class UsersController : ControllerBase
     }
     
     [HttpPost("add-photo")]
-    public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile newPhoto)
+    public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
     {
-        (PhotoDto? addPhotoResult, string? errorMessage) = await _mediator.Send(new AddPhotoToUserCommand(newPhoto));
+        (PhotoDto? addPhotoResult, string? errorMessage) = await _mediator.Send(new AddPhotoToUserCommand(file));
 
         return errorMessage is null ? addPhotoResult : BadRequest(errorMessage!);
     }

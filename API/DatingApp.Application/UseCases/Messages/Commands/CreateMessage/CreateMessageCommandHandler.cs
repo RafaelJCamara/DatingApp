@@ -27,19 +27,14 @@ namespace DatingApp.Application.UseCases.Messages.Commands.CreateMessage
                 return ("You cannot send messages to yourself", null);
 
             var sender = await _unitOfWork.UserRepository.GetUserByUsernameAsync(username);
+
             var recipient = await _unitOfWork.UserRepository.GetUserByUsernameAsync(request.MessageToCreate.RecipientUsername);
 
             if (recipient == null) return ("Recipient not found", null);
 
-            var message = new Message
-            {
-                Sender = sender,
-                Recipient = recipient,
-                SenderUsername = sender.UserName,
-                RecipientUsername = recipient.UserName,
-                Content = request.MessageToCreate.Content
-            };
-            _unitOfWork.MessageRepository.AddMessage(message);
+            var message = Message.Create(sender, recipient, request.MessageToCreate.Content);
+
+            sender.AddMessageSent(message);
 
             if (await _unitOfWork.Complete()) return (null, _mapper.Map<MessageDto>(message));
 

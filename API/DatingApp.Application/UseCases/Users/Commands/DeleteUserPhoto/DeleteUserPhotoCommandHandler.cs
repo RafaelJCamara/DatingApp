@@ -21,19 +21,13 @@ namespace DatingApp.Application.UseCases.Users.Commands.DeleteUserPhoto
         {
             var user = await _unitOfWork.UserRepository.GetUserByUsernameAsync(_currentUser.Username);
 
-            var photo = user.Photos.FirstOrDefault(x => x.Id == request.PhotoId);
+            var publicId = user.RemovePhoto(request.PhotoId);
 
-            if (photo == null) return (false, "Photo not found.");
-
-            if (photo.IsMain) return (false, "You can't delete your main photo");
-
-            if (photo.PublicId != null)
+            if (publicId != null)
             {
-                var result = await _photoService.DeletePhotoAsync(photo.PublicId);
+                var result = await _photoService.DeletePhotoAsync(publicId);
                 if (result.Error != null) return (false, result.Error.Message);
             }
-
-            user.Photos.Remove(photo);
 
             if (await _unitOfWork.Complete()) return (true, null);
 
