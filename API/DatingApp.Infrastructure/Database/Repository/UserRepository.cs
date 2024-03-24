@@ -20,10 +20,7 @@ public class UserRepository : IUserRepository
         _mapper = mapper;
     }
 
-    public async Task<AppUser> GetUserByIdAsync(int id)
-    {
-        return await _context.Users.FindAsync(id);
-    }
+    public async Task<AppUser> GetUserByIdAsync(int id) => await _context.Users.FindAsync(id);
 
     public async Task<AppUser> GetUserByUsernameAsync(string username)
     {
@@ -32,15 +29,9 @@ public class UserRepository : IUserRepository
             .SingleOrDefaultAsync(x => x.UserName == username);
     }
 
-    public async Task<IEnumerable<AppUser>> GetUsersAsync()
-    {
-        return await _context.Users.Include(x => x.Photos).ToListAsync();
-    }
+    public async Task<IEnumerable<AppUser>> GetUsersAsync() => await _context.Users.Include(x => x.Photos).ToListAsync();
 
-    public void Update(AppUser user)
-    {
-        _context.Entry(user).State = EntityState.Modified;
-    }
+    public void Update(AppUser user) => _context.Entry(user).State = EntityState.Modified;
 
     public async Task<PagedList<MemberDto>> GetMembersAsync(UserParamsDto userParams)
     {
@@ -73,8 +64,5 @@ public class UserRepository : IUserRepository
             .SingleOrDefaultAsync();
     }
 
-    public async Task<string> GetUserGender(string username)
-    {
-        return (await _context.Users.FirstOrDefaultAsync(x => x.UserName.Equals(username)))?.Gender;
-    }
+    public async Task<string> GetUserGender(string username) => (await _context.Users.FirstOrDefaultAsync(x => x.UserName.Equals(username)))?.Gender;
 }

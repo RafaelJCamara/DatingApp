@@ -1,11 +1,12 @@
 ﻿using DatingApp.Application.Common.Interfaces;
 using DatingApp.Application.Common.Models;
 using DatingApp.Application.Dtos;
+using DatingApp.Domain.Common.Response;
 using MediatR;
 
 namespace DatingApp.Application.UseCases.Users.Queries.GetPaginatedUsers
 {
-    public sealed class GetPaginatedUsersQueryHandler : IRequestHandler<GetPaginatedUsersQuery, PagedList<MemberDto>>
+    public sealed class GetPaginatedUsersQueryHandler : IRequestHandler<GetPaginatedUsersQuery, Result<PagedList<MemberDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUser _currentUser;
@@ -16,7 +17,7 @@ namespace DatingApp.Application.UseCases.Users.Queries.GetPaginatedUsers
             _currentUser = currentUser;
         }
 
-        public async Task<PagedList<MemberDto>> Handle(GetPaginatedUsersQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedList<MemberDto>>> Handle(GetPaginatedUsersQuery request, CancellationToken cancellationToken)
         {
             var gender = await _unitOfWork.UserRepository.GetUserGender(_currentUser.Username);
 
@@ -36,7 +37,7 @@ namespace DatingApp.Application.UseCases.Users.Queries.GetPaginatedUsers
                 member.IsLikedByCurrentUser = await _unitOfWork.LikesRepository.DoesCurrentUserLikeTargetUser(_currentUser.Id.Value, currentMember.Id);
             }
 
-            return users;
+            return Result<PagedList<MemberDto>>.Success(users);
         }
     }
 }

@@ -1,4 +1,5 @@
-using DatingApp.Domain.Exceptions;
+using DatingApp.Domain.Common.Response;
+using DatingApp.Domain.Errors.Photos;
 using Microsoft.AspNetCore.Identity;
 
 namespace DatingApp.Domain.Models;
@@ -22,40 +23,44 @@ public class AppUser : IdentityUser<int>
     public List<Message> MessagesReceived { get; set; }
     public ICollection<AppUserRole> UserRoles { get; set; }
 
-    public void SwitchMainPhoto(int newPhotoId)
+    public Result SwitchMainPhoto(int newPhotoId)
     {
         var newMainPhoto = Photos.FirstOrDefault(x => x.Id == newPhotoId);
 
-        if (newMainPhoto == null) throw new PhotoNotFoundException(newPhotoId);
+        if (newMainPhoto == null) return Result.Failure(PhotoErrors.PhotoNotFound(newPhotoId));
 
-        if (newMainPhoto.IsMain) throw new MainPhotoAlreadySetException();
+        if (newMainPhoto.IsMain) return Result.Failure(PhotoErrors.MainPhotoAlreadySet);
 
         DisableCurrentMainPhoto();
 
         newMainPhoto.SetCurrentPhotoAsMainPhoto();
+
+        return Result.Success();
     }
 
-    public string? RemovePhoto(int photoIdToDelete)
+    public Result<string?> RemovePhoto(int photoIdToDelete)
     {
         var photoToDelete = Photos.FirstOrDefault(x => x.Id == photoIdToDelete);
 
-        if (photoToDelete == null) throw new PhotoNotFoundException(photoIdToDelete);
+        if (photoToDelete == null) return Result<string?>.Failure(PhotoErrors.PhotoNotFound(photoIdToDelete));
 
-        if (photoToDelete.IsMain) throw new MainPhotoUndeletableException();
+        if (photoToDelete.IsMain) return Result<string?>.Failure(PhotoErrors.MainPhotoAlreadySet);
 
         Photos.Remove(photoToDelete);
 
-        return photoToDelete.PublicId;
+        return Result<string?>.Success(photoToDelete.PublicId);
     }
 
-    public void DisableCurrentMainPhoto()
+    public Result DisableCurrentMainPhoto()
     {
         var currentMain = Photos.FirstOrDefault(x => x.IsMain);
 
         if (currentMain != null) currentMain.DisablePhotoAsMainPhoto();
+
+        return Result.Success();
     }
 
-    public Photo AddPhoto(string absoluteUri, string publicId)
+    public Result<Photo> AddPhoto(string absoluteUri, string publicId)
     {
         var newPhoto = new Photo
         {
@@ -66,10 +71,20 @@ public class AppUser : IdentityUser<int>
 
         Photos.Add(newPhoto);
 
-        return newPhoto;
+        return Result<Photo>.Success(newPhoto);
     }
 
-    public void AddMessageSent(Message messageSent) => MessagesSent.Add(messageSent);
+    public Result AddMessageSent(Message messageSent) 
+    {
+        MessagesSent.Add(messageSent);
 
-    public void AddMessageReceived(Message messageReceived) => MessagesReceived.Add(messageReceived);
+        return Result.Success();
+    }
+
+    public Result AddMessageReceived(Message messageReceived)
+    {
+        MessagesReceived.Add(messageReceived);
+
+        return Result.Success();
+    }
 }

@@ -1,9 +1,9 @@
+using DatingApp.Application.Common.Models;
 using DatingApp.Application.Dtos;
-using DatingApp.Domain.Models;
-using Microsoft.EntityFrameworkCore;
 using DatingApp.Application.Extensions;
 using DatingApp.Application.Interfaces.Repository;
-using DatingApp.Application.Common.Models;
+using DatingApp.Domain.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DatingApp.Infrastructure.Database.Repository;
 
@@ -61,8 +61,5 @@ public class LikesRepository : ILikesRepository
         return await PagedList<LikeDto>.CreateAsync(likedUsers, likesParams.PageNumber, likesParams.PageSize);
     }
 
-    public async Task<bool> DoesCurrentUserLikeTargetUser(int currentUserId, int targetUserId)
-    {
-        return await _context.Likes.FindAsync(currentUserId, targetUserId) != null;
-    }
+    public async Task<bool> DoesCurrentUserLikeTargetUser(int currentUserId, int targetUserId) => await _context.Likes.FindAsync(currentUserId, targetUserId) != null;
 }

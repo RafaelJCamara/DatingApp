@@ -1,10 +1,11 @@
 ﻿using DatingApp.Application.Common.Interfaces;
 using DatingApp.Application.Dtos;
+using DatingApp.Domain.Common.Response;
 using MediatR;
 
 namespace DatingApp.Application.UseCases.Users.Queries.GetUser
 {
-    public sealed class GetUserQueryHandler : IRequestHandler<GetUserQuery, MemberDto?>
+    public sealed class GetUserQueryHandler : IRequestHandler<GetUserQuery, Result<MemberDto?>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUser _currentUser;
@@ -15,13 +16,13 @@ namespace DatingApp.Application.UseCases.Users.Queries.GetUser
             _currentUser = currentUser;
         }
 
-        public async Task<MemberDto?> Handle(GetUserQuery request, CancellationToken cancellationToken)
+        public async Task<Result<MemberDto?>> Handle(GetUserQuery request, CancellationToken cancellationToken)
         {
             var currentMember = await _unitOfWork.UserRepository.GetMemberByUsernameAsync(request.Username);
 
             currentMember.IsLikedByCurrentUser = await _unitOfWork.LikesRepository.DoesCurrentUserLikeTargetUser(_currentUser.Id.Value, currentMember.Id);
 
-            return currentMember;
+            return Result<MemberDto?>.Success(currentMember);
         }
     }
 }
