@@ -1,4 +1,5 @@
 ﻿using DatingApp.Application.UseCases.Admin.Queries.GetUsersWithRoles.Dto;
+using DatingApp.Domain.Common.Response;
 using DatingApp.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DatingApp.Application.UseCases.Admin.Queries.GetUsersWithRoles
 {
-    public class GetUsersWithRolesQueryHandler : IRequestHandler<GetUsersWithRolesQuery, List<UserDto>>
+    public class GetUsersWithRolesQueryHandler : IRequestHandler<GetUsersWithRolesQuery, Result<IEnumerable<UserDto>>>
     {
         private readonly UserManager<AppUser> _userManager;
 
@@ -15,7 +16,7 @@ namespace DatingApp.Application.UseCases.Admin.Queries.GetUsersWithRoles
             _userManager = userManager;
         }
 
-        public async Task<List<UserDto>> Handle(GetUsersWithRolesQuery request, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<UserDto>>> Handle(GetUsersWithRolesQuery request, CancellationToken cancellationToken)
         {
             var users = await _userManager.Users
              .OrderBy(u => u.UserName)
@@ -26,8 +27,8 @@ namespace DatingApp.Application.UseCases.Admin.Queries.GetUsersWithRoles
                  Roles = u.UserRoles.Select(r => r.Role.Name).ToList()
              })
              .ToListAsync();
-
-            return users;
+             
+            return Result<IEnumerable<UserDto>>.Success(users);
         }
     }
 }

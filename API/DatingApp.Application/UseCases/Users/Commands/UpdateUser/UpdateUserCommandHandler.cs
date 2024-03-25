@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using DatingApp.Application.Common.Interfaces;
+using DatingApp.Domain.Common.Response;
+using DatingApp.Domain.Errors.Users;
 using MediatR;
 
 namespace DatingApp.Application.UseCases.Users.Commands.UpdateUser
 {
-    public sealed class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, (bool, string?)>
+    public sealed class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Result>
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
@@ -17,17 +19,17 @@ namespace DatingApp.Application.UseCases.Users.Commands.UpdateUser
             _currentUser = currentUser;
         }
 
-        public async Task<(bool, string?)> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
         {
             var user = await _unitOfWork.UserRepository.GetUserByUsernameAsync(_currentUser.Username);
 
-            if (user is null) return (false, "User not found.");
+            if (user is null) return Result.Failure(UserErrors.UserNotFound(_currentUser.Username));
 
             _mapper.Map(request.UserToUpdate, user);
 
-            if (await _unitOfWork.Complete()) return (true, null);
+            if (await _unitOfWork.Complete()) return Result.Success();
 
-            return (false, "Failed to update the user.");
+            return Result.Failure(UserErrors.UserUpdateFailed(_currentUser.Username));
         }
     }
 }

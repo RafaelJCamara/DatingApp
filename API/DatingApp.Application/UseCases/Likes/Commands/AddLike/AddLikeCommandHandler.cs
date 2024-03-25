@@ -1,10 +1,12 @@
 ﻿using DatingApp.Application.Common.Interfaces;
+using DatingApp.Domain.Common.Response;
+using DatingApp.Domain.Errors.Likes;
 using DatingApp.Domain.Models;
 using MediatR;
 
 namespace DatingApp.Application.UseCases.Likes.Commands.AddLike
 {
-    public sealed class AddLikeCommandHandler : IRequestHandler<AddLikeCommand, string?>
+    public sealed class AddLikeCommandHandler : IRequestHandler<AddLikeCommand, Result>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUser _currentUser;
@@ -15,19 +17,19 @@ namespace DatingApp.Application.UseCases.Likes.Commands.AddLike
             _currentUser = currentUser;
         }
 
-        public async Task<string?> Handle(AddLikeCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(AddLikeCommand request, CancellationToken cancellationToken)
         {
             var sourceUserId = _currentUser.Id;
             var likedUser = await _unitOfWork.UserRepository.GetUserByUsernameAsync(request.TargetUsername);
             var sourceUser = await _unitOfWork.LikesRepository.GetUserWithLikes(sourceUserId.Value);
 
-            if (likedUser == null) return "Target user not found";
+            if (likedUser is null) return Result.Failure(LikeErrors.TargetUserNotFound(request.TargetUsername));
 
-            if (sourceUser.UserName == request.TargetUsername) return "You cannot like yourself";
+            if (sourceUser.UserName == request.TargetUsername) return Result.Failure(LikeErrors.TargetLikeUserIsSelf);
 
             var userLike = await _unitOfWork.LikesRepository.GetUserLike(sourceUserId.Value, likedUser.Id);
 
-            if (userLike != null) return "You already like this user";
+            if (userLike is not null) return Result.Failure(LikeErrors.TargetUserAlreadyLiked(request.TargetUsername));
 
             userLike = new UserLike
             {
@@ -37,9 +39,9 @@ namespace DatingApp.Application.UseCases.Likes.Commands.AddLike
 
             sourceUser.LikedUsers.Add(userLike);
 
-            if (await _unitOfWork.Complete()) return null;
+            if (await _unitOfWork.Complete()) return Result.Success();
 
-            return "Failed to like user";
+            return Result.Failure(LikeErrors.LikeFailed(request.TargetUsername));
         }
     }
 }
