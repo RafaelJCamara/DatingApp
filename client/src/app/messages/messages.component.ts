@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Pagination } from '../_models/pagination';
 import { Message } from '../_models/message';
 import { MessageService } from '../_services/message.service';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-messages',
@@ -12,9 +13,10 @@ export class MessagesComponent implements OnInit {
   messages?: Message[] = [];
   pagination?: Pagination;
   container = 'Unread';
-  pageNumber = 1;
+  pageNumber = 0;
   pageSize = 5;
   loading = false;
+  pageSizeArray = [5, 10, 25];
 
   constructor(private messageService: MessageService) {}
 
@@ -44,10 +46,20 @@ export class MessagesComponent implements OnInit {
         ),
     });
   }
-  pageChanged(event: any) {
-    if (this.pageNumber !== event.page) {
-      this.pageNumber = event.page;
-      this.loadMessages();
+
+  pageChanged(event: PageEvent) {
+    let changes = false;
+
+    if (this.pageNumber != event.pageIndex) {
+      this.pageNumber = event.pageIndex;
+      changes = true;
     }
+
+    if (this.pageSize != event.pageSize) {
+      this.pageSize = event.pageSize;
+      changes = true;
+    }
+
+    if (changes) this.loadMessages();
   }
 }
