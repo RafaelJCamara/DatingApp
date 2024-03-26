@@ -21,14 +21,14 @@ public class LikesController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpPost("{username}")]
+    [HttpPost("{targetUsername}")]
     public async Task<ActionResult> AddLike(string targetUsername)
     {
         string? addLikeValidationResult = await _mediator.Send(new AddLikeCommand(targetUsername));
         return addLikeValidationResult is null ? NoContent() : BadRequest(addLikeValidationResult);
     }
 
-    [HttpPost("dislike/{username}")]
+    [HttpPost("dislike/{targetUsername}")]
     public async Task<ActionResult> Dislike(string targetUsername)
     {
         string? dislikeValidationResult = await _mediator.Send(new DislikeCommand(targetUsername));
