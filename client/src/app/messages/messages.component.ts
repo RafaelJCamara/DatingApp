@@ -46,6 +46,17 @@ export class MessagesComponent implements OnInit {
           this.messages.findIndex((m) => m.id === id),
           1
         ),
+      complete: () => {
+        if (this.pagination) {
+          this.pagination.totalItems -= 1;
+          if (this.pagination.totalItems % this.pageSize === 0) {
+            //move page to previous page
+            this.pagination.currentPage -= 1;
+            this.pageNumber -= 1;
+            this.loadMessages(this.pageNumber, this.pageSize);
+          }
+        }
+      },
     });
   }
 
