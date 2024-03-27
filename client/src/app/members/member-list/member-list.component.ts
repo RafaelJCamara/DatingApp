@@ -4,7 +4,6 @@ import { Member } from 'src/app/_models/member';
 import { UserParams } from 'src/app/_models/userParams';
 import { MembersService } from 'src/app/_services/members.service';
 import { PresenceService } from 'src/app/_services/presence.service';
-import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-member-list',
@@ -20,12 +19,11 @@ export class MemberListComponent implements OnInit {
     { value: 'female', display: 'Females' },
   ];
 
-  pageSizeArray = [5, 10, 25];
-
   constructor(
     private memberService: MembersService,
     private presenceService: PresenceService
   ) {
+    this.memberService.resetUserParams();
     this.userParams = this.memberService.getUserParams();
     this.presenceService.onlineUsers$.subscribe({
       next: (_) => {
@@ -57,24 +55,12 @@ export class MemberListComponent implements OnInit {
     this.loadMembers();
   }
 
-  pageChanged(event: PageEvent) {
+  pageChanged(event: any) {
     if (this.userParams) {
-      let changes = false;
-
-      if (this.userParams.pageNumber != event.pageIndex) {
-        this.userParams.pageNumber = event.pageIndex;
-        changes = true;
-      }
-
-      if (this.userParams.pageSize != event.pageSize) {
-        this.userParams.pageSize = event.pageSize;
-        changes = true;
-      }
-
-      if (changes) {
-        this.memberService.setUserParams(this.userParams);
-        this.loadMembers();
-      }
+      this.userParams.pageNumber = event.pageNumber;
+      this.userParams.pageSize = event.pageSize;
+      this.memberService.setUserParams(this.userParams);
+      this.loadMembers();
     }
   }
 }
