@@ -1,7 +1,9 @@
+import { DEFAULT_PAGE_SIZE } from './../_models/constants/paginationConstants';
 import { Component, OnInit } from '@angular/core';
-import { Pagination } from '../_models/pagination';
+import { PageChangedEvent, Pagination } from '../_models/pagination';
 import { Message } from '../_models/message';
 import { MessageService } from '../_services/message.service';
+import { DEFAULT_PAGE_NUMBER } from '../_models/constants/paginationConstants';
 
 @Component({
   selector: 'app-messages',
@@ -13,8 +15,8 @@ export class MessagesComponent implements OnInit {
   pagination?: Pagination;
   container = 'Unread';
   loading = false;
-  pageNumber = 0;
-  pageSize = 5;
+  pageNumber = DEFAULT_PAGE_NUMBER;
+  pageSize = DEFAULT_PAGE_SIZE;
 
   constructor(private messageService: MessageService) {}
 
@@ -22,7 +24,7 @@ export class MessagesComponent implements OnInit {
     this.loadMessages();
   }
 
-  loadMessages(pageNumber = 0, pageSize = 5) {
+  loadMessages(pageNumber = DEFAULT_PAGE_NUMBER, pageSize = DEFAULT_PAGE_SIZE) {
     this.loading = true;
     this.pageNumber = pageNumber;
     this.pageSize = pageSize;
@@ -47,7 +49,7 @@ export class MessagesComponent implements OnInit {
     });
   }
 
-  pageChanged(event: any) {
+  pageChanged(event: PageChangedEvent) {
     this.loadMessages(event.pageNumber, event.pageSize);
   }
 }

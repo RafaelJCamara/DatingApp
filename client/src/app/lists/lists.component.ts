@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Member } from '../_models/member';
 import { MembersService } from '../_services/members.service';
-import { Pagination } from '../_models/pagination';
+import { PageChangedEvent, Pagination } from '../_models/pagination';
+import {
+  DEFAULT_PAGE_NUMBER,
+  DEFAULT_PAGE_SIZE,
+} from '../_models/constants/paginationConstants';
 
 @Component({
   selector: 'app-lists',
@@ -12,8 +16,8 @@ export class ListsComponent implements OnInit {
   members: Member[] | undefined;
   predicate = 'liked';
   pagination: Pagination | undefined;
-  pageNumber = 0;
-  pageSize = 5;
+  pageNumber = DEFAULT_PAGE_NUMBER;
+  pageSize = DEFAULT_PAGE_SIZE;
 
   constructor(private memberService: MembersService) {}
 
@@ -21,7 +25,7 @@ export class ListsComponent implements OnInit {
     this.loadLikes(this.pageNumber, this.pageSize);
   }
 
-  loadLikes(pageNumber = 0, pageSize = 5) {
+  loadLikes(pageNumber = DEFAULT_PAGE_NUMBER, pageSize = DEFAULT_PAGE_SIZE) {
     this.pageNumber = pageNumber;
     this.pageSize = pageSize;
     this.memberService
@@ -36,5 +40,9 @@ export class ListsComponent implements OnInit {
 
   pageChanged(event: any) {
     this.loadLikes(event.pageNumber, event.pageSize);
+  }
+
+  memberDisliked(event: any) {
+    this.loadLikes();
   }
 }

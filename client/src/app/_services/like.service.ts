@@ -1,28 +1,20 @@
 import { Injectable } from '@angular/core';
 import { MembersService } from './members.service';
 import { Member } from '../_models/member';
-import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LikeService {
-  constructor(
-    private memberService: MembersService,
-    private toastr: ToastrService
-  ) {}
+  constructor(private memberService: MembersService) {}
 
   likeUser(member: Member) {
     member.isLikedByCurrentUser = true;
-    this.memberService.likeUser(member).subscribe({
-      next: () => this.toastr.success('You have liked ' + member.knownAs),
-    });
+    return this.memberService.likeUser(member);
   }
 
   dislikeUser(member: Member) {
     member.isLikedByCurrentUser = false;
-    this.memberService.dislikeUser(member).subscribe({
-      next: () => this.toastr.warning('You have disliked ' + member.knownAs),
-    });
+    return this.memberService.dislikeUser(member);
   }
 }
