@@ -1,4 +1,4 @@
-import { Pagination } from './../../_models/pagination';
+import { PageChangedEvent, Pagination } from './../../_models/pagination';
 import { Component, OnInit } from '@angular/core';
 import { Member } from 'src/app/_models/member';
 import { UserParams } from 'src/app/_models/userParams';
@@ -55,7 +55,7 @@ export class MemberListComponent implements OnInit {
     this.loadMembers();
   }
 
-  pageChanged(event: any) {
+  pageChanged(event: PageChangedEvent) {
     if (this.userParams) {
       this.userParams.pageNumber = event.pageNumber;
       this.userParams.pageSize = event.pageSize;

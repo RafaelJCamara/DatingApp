@@ -6,6 +6,11 @@ import {
   ViewChild,
 } from '@angular/core';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import {
+  DEFAULT_PAGE_NUMBER,
+  DEFAULT_PAGE_SIZE,
+} from 'src/app/_models/constants/paginationConstants';
+import { PageChangedEvent } from 'src/app/_models/pagination';
 
 @Component({
   selector: 'app-pagination',
@@ -14,11 +19,11 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 })
 export class PaginationComponent {
   @Input() totalItems = 0;
-  @Input() pageNumber = 0;
-  @Input() pageSize = 5;
+  @Input() pageNumber = DEFAULT_PAGE_NUMBER;
+  @Input() pageSize = DEFAULT_PAGE_SIZE;
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
 
-  @Output() pageChangedEvent = new EventEmitter();
+  @Output() pageChangedEvent = new EventEmitter<PageChangedEvent>();
 
   pageSizeArray = [5, 10, 25];
 
