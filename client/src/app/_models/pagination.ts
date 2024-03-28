@@ -9,3 +9,8 @@ export class PaginatedResult<T> {
   result?: T;
   pagination?: Pagination;
 }
+
+export interface PageChangedEvent {
+  pageNumber: number;
+  pageSize: number;
+}

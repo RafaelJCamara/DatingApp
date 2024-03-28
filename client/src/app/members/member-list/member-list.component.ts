@@ -1,4 +1,4 @@
-import { Pagination } from './../../_models/pagination';
+import { PageChangedEvent, Pagination } from './../../_models/pagination';
 import { Component, OnInit } from '@angular/core';
 import { Member } from 'src/app/_models/member';
 import { UserParams } from 'src/app/_models/userParams';
@@ -23,6 +23,7 @@ export class MemberListComponent implements OnInit {
     private memberService: MembersService,
     private presenceService: PresenceService
   ) {
+    this.memberService.resetUserParams();
     this.userParams = this.memberService.getUserParams();
     this.presenceService.onlineUsers$.subscribe({
       next: (_) => {
@@ -54,9 +55,10 @@ export class MemberListComponent implements OnInit {
     this.loadMembers();
   }
 
-  pageChanged(event: any) {
-    if (this.userParams && this.userParams?.pageSize !== event.page) {
-      this.userParams.pageNumber = event.page;
+  pageChanged(event: PageChangedEvent) {
+    if (this.userParams) {
+      this.userParams.pageNumber = event.pageNumber;
+      this.userParams.pageSize = event.pageSize;
       this.memberService.setUserParams(this.userParams);
       this.loadMembers();
     }

@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Member } from '../_models/member';
 import { MembersService } from '../_services/members.service';
-import { Pagination } from '../_models/pagination';
+import { PageChangedEvent, Pagination } from '../_models/pagination';
+import {
+  DEFAULT_PAGE_NUMBER,
+  DEFAULT_PAGE_SIZE,
+} from '../_models/constants/paginationConstants';
 
 @Component({
   selector: 'app-lists',
@@ -11,19 +15,21 @@ import { Pagination } from '../_models/pagination';
 export class ListsComponent implements OnInit {
   members: Member[] | undefined;
   predicate = 'liked';
-  pageNumber = 1;
-  pageSize = 5;
   pagination: Pagination | undefined;
+  pageNumber = DEFAULT_PAGE_NUMBER;
+  pageSize = DEFAULT_PAGE_SIZE;
 
   constructor(private memberService: MembersService) {}
 
   ngOnInit(): void {
-    this.loadLikes();
+    this.loadLikes(this.pageNumber, this.pageSize);
   }
 
-  loadLikes() {
+  loadLikes(pageNumber = DEFAULT_PAGE_NUMBER, pageSize = DEFAULT_PAGE_SIZE) {
+    this.pageNumber = pageNumber;
+    this.pageSize = pageSize;
     this.memberService
-      .getLikes(this.predicate, this.pageNumber, this.pageSize)
+      .getLikes(this.predicate, pageNumber, pageSize)
       .subscribe({
         next: (response) => {
           this.members = response.result;
@@ -33,9 +39,10 @@ export class ListsComponent implements OnInit {
   }
 
   pageChanged(event: any) {
-    if (this.pageNumber !== event.page) {
-      this.pageNumber = event.page;
-      this.loadLikes();
-    }
+    this.loadLikes(event.pageNumber, event.pageSize);
+  }
+
+  memberDisliked(event: any) {
+    this.loadLikes();
   }
 }
