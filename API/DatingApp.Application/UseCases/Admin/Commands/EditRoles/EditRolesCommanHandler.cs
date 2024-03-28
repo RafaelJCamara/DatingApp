@@ -1,10 +1,12 @@
-﻿using DatingApp.Domain.Models;
+﻿using DatingApp.Domain.Common.Response;
+using DatingApp.Domain.Errors.Admin;
+using DatingApp.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
 namespace DatingApp.Application.UseCases.Admin.Commands.EditRoles
 {
-    public sealed class EditRolesCommanHandler : IRequestHandler<EditRolesCommand, (string?, List<string>?)>
+    public sealed class EditRolesCommanHandler : IRequestHandler<EditRolesCommand, Result<List<string>?>>
     {
         private readonly UserManager<AppUser> _userManager;
 
@@ -13,27 +15,31 @@ namespace DatingApp.Application.UseCases.Admin.Commands.EditRoles
             _userManager = userManager;
         }
 
-        public async Task<(string?, List<string>?)> Handle(EditRolesCommand request, CancellationToken cancellationToken)
+        public async Task<Result<List<string>?>> Handle(EditRolesCommand request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(request.Roles)) return ("You must select at least one role", null);
+            if (string.IsNullOrEmpty(request.Roles)) return Result<List<string>?>.Failure(AdminErrors.NoRolesSelected);
 
             var selectedRoles = request.Roles.Split(",").ToArray();
 
             var user = await _userManager.FindByNameAsync(request.Username);
 
-            if (user is null) return ("User not found", null);
+            if (user is null) return Result<List<string>?>.Failure(AdminErrors.UserNotFound(request.Username));
 
             var userRoles = await _userManager.GetRolesAsync(user);
 
-            var result = await _userManager.AddToRolesAsync(user, selectedRoles.Except(userRoles));
+            var newRoles = selectedRoles.Except(userRoles);
 
-            if (!result.Succeeded) return ("Failed to add to roles", null);
+            var result = await _userManager.AddToRolesAsync(user, newRoles);
 
-            result = await _userManager.RemoveFromRolesAsync(user, userRoles.Except(selectedRoles));
+            if (!result.Succeeded) return Result<List<string>?>.Failure(AdminErrors.FailToAddRolesToUser(request.Username, newRoles.ToArray()));
 
-            if (!result.Succeeded) return ("Failed to remove from roles", null);
+            var rolesToDelete = userRoles.Except(selectedRoles);
 
-            return (null, (await _userManager.GetRolesAsync(user)).ToList());
+            result = await _userManager.RemoveFromRolesAsync(user, rolesToDelete);
+
+            if (!result.Succeeded) return Result<List<string>?>.Failure(AdminErrors.FailToRemoveRolesFromUser(request.Username, rolesToDelete.ToArray()));
+
+            return Result<List<string>?>.Success((await _userManager.GetRolesAsync(user)).ToList());
         }
     }
 }

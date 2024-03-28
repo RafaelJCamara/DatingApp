@@ -5,7 +5,7 @@ namespace DatingApp.Domain.Errors.Likes
     public static class LikeErrors
     {
         public static Error TargetUserNotFound(string username) 
-            => new Error("Like.TargetUserNotFound", $"The target user with username {username} not found.");
+            => new Error("Like.TargetUserNotFound", $"The target user with username {username} was not found.");
 
         public static Error TargetLikeUserIsSelf 
             = new("Like.TargetUserIsSelf", "You cannot like yourself.");

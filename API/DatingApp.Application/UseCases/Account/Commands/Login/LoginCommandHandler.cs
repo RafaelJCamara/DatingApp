@@ -1,5 +1,7 @@
 ﻿using DatingApp.Application.Dtos;
 using DatingApp.Application.Interfaces.Services;
+using DatingApp.Domain.Common.Response;
+using DatingApp.Domain.Errors.Account;
 using DatingApp.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -7,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DatingApp.Application.UseCases.Account.Commands.Login;
 
-public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, UserDto?>
+public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result<UserDto?>>
 {
 
     private readonly UserManager<AppUser> _userManager;
@@ -19,26 +21,26 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, UserDto?
         _tokenService = tokenService;
     }
 
-    public async Task<UserDto?> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<Result<UserDto?>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         var user = await _userManager
                             .Users
                             .Include(p => p.Photos)
                             .SingleOrDefaultAsync(x => x.UserName.Equals(request.LoginCredentials.Username));
 
-        if (user is null) return null;
+        if (user is null) return Result<UserDto?>.Failure(AccountErrors.UserNotFound(request.LoginCredentials.Username));
 
         var result = await _userManager.CheckPasswordAsync(user, request.LoginCredentials.Password);
 
-        if (!result) return null;
+        if (!result) return Result<UserDto?>.Failure(AccountErrors.LoginFailed);
 
-        return new UserDto
+        return Result<UserDto?>.Success(new UserDto
         {
             Username = user.UserName,
             Token = await _tokenService.CreateToken(user),
             PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url,
             KnownAs = user.KnownAs,
             Gender = user.Gender
-        };
+        });
     }
 }
