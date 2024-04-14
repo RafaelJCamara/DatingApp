@@ -36,5 +36,6 @@ jobs:
       with:
         node-version: '18.x'
         cache: 'npm'
+    - run: cd client/
     - run: npm ci
     - run: npm run build --if-present
