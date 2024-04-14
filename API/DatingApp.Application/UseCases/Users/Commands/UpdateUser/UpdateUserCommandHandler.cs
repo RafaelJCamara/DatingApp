@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DatingApp.Application.Common.Interfaces;
+using DatingApp.Common.Helpers.User;
 using MediatR;
 
 namespace DatingApp.Application.UseCases.Users.Commands.UpdateUser

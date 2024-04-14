@@ -2,6 +2,7 @@
 using DatingApp.Application.SignalR;
 using DatingApp.Application.UseCases.Account.Common.Services;
 using DatingApp.Application.UseCases.Users.Common.Behaviours;
+using DatingApp.Common.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,10 +17,9 @@ public static class DependencyInjection
         services
             .AddAutoMapper(Assembly.GetExecutingAssembly())
             .AddScoped<ITokenService, TokenService>()
-            .AddMediatR(cfg =>
+            .AddMediatrFromAssemblyContaining(Assembly.GetExecutingAssembly(), new()
             {
-                cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-                cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LogUserActivityBehaviour<,>));
+                { typeof(IPipelineBehavior<,>), typeof(LogUserActivityBehaviour<,>) }
             })
             .AddSingleton<PresenceTracker>()
             .AddSignalR();

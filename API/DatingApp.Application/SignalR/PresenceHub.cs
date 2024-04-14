@@ -1,4 +1,4 @@
-﻿using DatingApp.Application.Common.Extensions;
+﻿using DatingApp.Common.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 

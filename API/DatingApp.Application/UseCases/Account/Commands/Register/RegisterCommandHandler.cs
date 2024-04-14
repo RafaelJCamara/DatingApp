@@ -1,24 +1,28 @@
 ﻿using AutoMapper;
 using DatingApp.Application.Dtos;
 using DatingApp.Application.Interfaces.Services;
+using DatingApp.Common.Events;
 using DatingApp.Domain.Models;
+using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace DatingApp.Application.UseCases.Account.Commands.Register;
 
-public sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, (UserDto?, object)>
+public sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, (UserDto?, object?)>
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly ITokenService _tokenService;
     private readonly IMapper _mapper;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public RegisterCommandHandler(UserManager<AppUser> userManager, ITokenService tokenService, IMapper mapper)
+    public RegisterCommandHandler(UserManager<AppUser> userManager, ITokenService tokenService, IMapper mapper, IPublishEndpoint publishEndpoint)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _mapper = mapper;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<(UserDto?, object?)> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -33,6 +37,12 @@ public sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, (U
         var roleResult = await _userManager.AddToRoleAsync(user, "Member");
 
         if (!result.Succeeded) return (null, result.Errors);
+
+        await _publishEndpoint.Publish(new UserCreatedEvent
+        {
+            Email = user.Email,
+            Username = user.UserName
+        });
 
         return (new UserDto
         {

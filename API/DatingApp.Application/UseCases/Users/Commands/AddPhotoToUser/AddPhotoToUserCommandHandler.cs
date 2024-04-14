@@ -2,6 +2,7 @@
 using DatingApp.Application.Common.Interfaces;
 using DatingApp.Application.Dtos;
 using DatingApp.Application.Interfaces.Services;
+using DatingApp.Common.Helpers.User;
 using DatingApp.Domain.Models;
 using MediatR;
 

@@ -31,6 +31,8 @@ import { RouteReuseStrategy } from '@angular/router';
 import { CustomRouteReuseStrategy } from './_services/customRouteReuseStrategy';
 import { ConfirmDialogComponent } from './modals/confirm-dialog/confirm-dialog.component';
 import { PaginationComponent } from './_common/components/pagination/pagination.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { EmailValidationComponent } from './email/validation/email-validation/email-validation.component';
 
 @NgModule({
   declarations: [
@@ -54,6 +56,7 @@ import { PaginationComponent } from './_common/components/pagination/pagination.
     RolesModalComponent,
     ConfirmDialogComponent,
     PaginationComponent,
+    EmailValidationComponent,
   ],
   imports: [
     BrowserModule,
@@ -63,6 +66,7 @@ import { PaginationComponent } from './_common/components/pagination/pagination.
     FormsModule,
     ReactiveFormsModule,
     SharedModule,
+    NgbModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

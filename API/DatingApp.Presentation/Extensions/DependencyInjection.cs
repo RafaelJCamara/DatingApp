@@ -1,9 +1,8 @@
 ﻿using DatingApp.API.Extensions;
 using DatingApp.API.Middleware;
-using DatingApp.Application.Common.Interfaces;
 using DatingApp.Application.Extensions;
+using DatingApp.Common.Extensions;
 using DatingApp.Infrastructure.Extensions;
-using DatingApp.Presentation.Helpers;
 
 namespace DatingApp.Presentation.Extensions;
 
@@ -16,10 +15,10 @@ public static class DependencyInjection
         services
             .AddEndpointsApiExplorer()
             .AddSwaggerGen()
-            .AddIdentityServices(configuration).
-            AddSingleton<IHttpContextAccessor, HttpContextAccessor>().
-            AddScoped<IUser, CurrentUser>().
-            AddCors();
+            .AddIdentityServices(configuration)
+            .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
+            .AddCommonHelpers()
+            .AddCors();
 
         return services;
     }

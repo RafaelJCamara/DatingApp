@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
+using DatingApp.Application.Common.Interfaces;
 using DatingApp.Application.Dtos;
+using DatingApp.Common.Extensions;
 using DatingApp.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using DatingApp.Application.Common.Interfaces;
-using DatingApp.Application.Common.Extensions;
 
 namespace DatingApp.Application.SignalR;
 

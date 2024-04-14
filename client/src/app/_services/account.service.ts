@@ -4,6 +4,7 @@ import { User } from '../_models/user';
 import { BehaviorSubject, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { PresenceService } from './presence.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
@@ -15,15 +16,20 @@ export class AccountService {
 
   constructor(
     private http: HttpClient,
-    private presenceService: PresenceService
+    private presenceService: PresenceService,
+    private toastr: ToastrService
   ) {}
 
   login(model: any) {
     return this.http.post<User>(this.baseUrl + 'account/login', model).pipe(
-      map((response: User) => {
-        const user = response;
+      map((user: User) => {
         if (user) {
           this.setCurrentUser(user);
+          if (!user.emailConfirmed)
+            this.toastr.warning(
+              'Please make sure to validate your email, otherwise your account will be blocked.',
+              'Email not validated'
+            );
         }
       })
     );

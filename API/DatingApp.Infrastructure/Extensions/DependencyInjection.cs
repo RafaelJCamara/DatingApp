@@ -1,17 +1,20 @@
 ﻿using DatingApp.Application.Common.Interfaces;
 using DatingApp.Application.Interfaces.Services;
+using DatingApp.Common.Extensions;
 using DatingApp.Domain.Models;
 using DatingApp.Infrastructure.BlobStorage;
 using DatingApp.Infrastructure.BlobStorage.Settings;
 using DatingApp.Infrastructure.Database;
 using DatingApp.Infrastructure.Database.Seed;
 using DatingApp.Infrastructure.Database.UoW;
+using DatingApp.Infrastructure.Events.Handlers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace DatingApp.Infrastructure.Extensions;
 
@@ -25,7 +28,8 @@ public static class DependencyInjection
                 options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
             })
             .AddScoped<IUnitOfWork, UnitOfWork>()
-            .AddScoped<IPhotoService, PhotoService>();
+            .AddScoped<IPhotoService, PhotoService>()
+            .AddRabbitMQ(configuration, new List<Assembly> { Assembly.GetAssembly(typeof(EmailValidatedEventHandler)) });
 
         services.Configure<CloudinarySettings>(configuration.GetSection(nameof(CloudinarySettings)));
 

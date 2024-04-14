@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DatingApp.Application.Common.Interfaces;
 using DatingApp.Application.Dtos;
+using DatingApp.Common.Helpers.User;
 using DatingApp.Domain.Models;
 using MediatR;
 

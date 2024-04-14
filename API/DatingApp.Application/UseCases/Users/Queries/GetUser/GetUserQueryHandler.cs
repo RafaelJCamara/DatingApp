@@ -1,5 +1,6 @@
 ﻿using DatingApp.Application.Common.Interfaces;
 using DatingApp.Application.Dtos;
+using DatingApp.Common.Helpers.User;
 using MediatR;
 
 namespace DatingApp.Application.UseCases.Users.Queries.GetUser
