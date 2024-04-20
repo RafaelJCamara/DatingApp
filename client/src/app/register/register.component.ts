@@ -8,6 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { StrongPasswordRegex } from '../_common/regex/strong-password-regex';
 
 @Component({
   selector: 'app-register',
@@ -42,7 +43,12 @@ export class RegisterComponent implements OnInit {
       country: ['', Validators.required],
       password: [
         '',
-        [Validators.required, Validators.minLength(4), Validators.maxLength(8)],
+        [
+          Validators.required,
+          Validators.minLength(4),
+          Validators.maxLength(8),
+          this.strongPassword(),
+        ],
       ],
       confirmPassword: [
         '',
@@ -55,11 +61,19 @@ export class RegisterComponent implements OnInit {
     });
   }
 
+  strongPassword(): ValidatorFn {
+    return (control: AbstractControl) => {
+      return StrongPasswordRegex.test(control.value)
+        ? null
+        : { notStrong: true };
+    };
+  }
+
   matchValues(matchTo: string): ValidatorFn {
     return (control: AbstractControl) => {
       return control?.value === control?.parent?.get(matchTo)?.value
         ? null
-        : { isMatching: true };
+        : { notMatching: true };
     };
   }
 
