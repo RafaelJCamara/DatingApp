@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Diagnostics;
+using AutoMapper;
 using DatingApp.Application.Dtos;
 using DatingApp.Application.Interfaces.Services;
 using DatingApp.Common.Events;
@@ -38,11 +39,19 @@ public sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, (U
 
         if (!result.Succeeded) return (null, result.Errors);
 
-        await _publishEndpoint.Publish(new UserCreatedEvent
+        var activitySource = new ActivitySource("DatingApp");
+        
+        using (var activity = activitySource.StartActivity("[Publisher] User created event", ActivityKind.Producer))
         {
-            Email = user.Email,
-            Username = user.UserName
-        });
+            activity?.SetTag("messaging.system", "rabbitmq");
+            activity?.SetTag("messaging.destination_kind", "queue");
+            activity?.SetTag("messaging.rabbitmq.queue", "user-created-event");
+            await _publishEndpoint.Publish(new UserCreatedEvent
+            {
+                Email = user.Email,
+                Username = user.UserName
+            });   
+        }
 
         return (new UserDto
         {
